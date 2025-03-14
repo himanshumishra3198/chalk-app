@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#1A1F2C] text-white antialiased;
+  }
+}
+
+.hero-gradient {
+  background: linear-gradient(180deg, rgba(26, 31, 44, 0) 0%, #1a1f2c 100%);
+}

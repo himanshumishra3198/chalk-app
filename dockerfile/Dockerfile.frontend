@@ -1,0 +1,23 @@
+FROM node:23-alpine
+
+WORKDIR /usr/src/app
+
+RUN npm install -g pnpm
+
+ARG DATABASE_URL
+COPY ./packages ./packages
+COPY ./pnpm-lock.yaml ./pnpm-lock.yaml
+COPY ./pnpm-workspace.yaml ./pnpm-workspace.yaml
+
+COPY ./package.json ./package.json
+COPY ./turbo.json ./turbo.json
+
+COPY ./apps/chalk-frontend ./apps/chalk-frontend
+
+RUN pnpm install
+RUN pnpm run db:generate
+RUN DATABASE_URL=${DATABASE_URL} pnpm run build
+
+EXPOSE 3000
+
+CMD [ "pnpm", "run", "start:frontend"]
