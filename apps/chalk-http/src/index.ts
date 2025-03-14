@@ -174,6 +174,7 @@ app.get("/chat/:roomId", async (req, res) => {
         roomId: Number(req.params.roomId),
       },
     });
+
     res.status(200).json({
       messages,
     });
