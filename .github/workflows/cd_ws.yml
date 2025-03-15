@@ -1,4 +1,4 @@
-name: Deploy the backend
+name: Deploy the websocket
 on:
   push:
     branches: [main]
@@ -20,12 +20,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./dockerfile/Dockerfile.backend
+          file: ./dockerfile/Dockerfile.ws
           push: true
-          tags: himanshumishra3198/chalk-app-backend:${{ github.sha }}
-
-      - name: Deploy to vm
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-          chmod 700 /home/runner/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "docker stop chalk_backend && docker run --name chalk_backend -d -p 8080:8080 himanshumishra3198/chalk-app-backend:${{ github.sha }}"
+          tags: himanshumishra3198/chalk-app-websocket:${{ github.sha }}
