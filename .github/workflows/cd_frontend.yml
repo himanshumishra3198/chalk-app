@@ -19,15 +19,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Build and push ## docker build and docker push
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     file: ./dockerfile/Dockerfile.frontend
-      #     build-args:
-      #       - DATABASE_URL=${{ secrets.DATABASE_URL }}
-      #     push: true
-      #     tags: himanshumishra3198/chalk-app-frontend:${{ github.sha }}
+      - name: Build and push ## docker build and docker push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./dockerfile/Dockerfile.frontend
+          build-args:
+            - DATABASE_URL=${{ secrets.DATABASE_URL }}
+          push: true
+          tags: himanshumishra3198/chalk-app-frontend:${{ github.sha }}
 
       # - name: Deploy to vm
       #   run: |
