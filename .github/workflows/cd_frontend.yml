@@ -7,6 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug
+        run: echo "Workflow triggered"
+
       - name: checkout the code or cloning the code
         uses: actions/checkout@v2
 
