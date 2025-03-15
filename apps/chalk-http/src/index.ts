@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.send("Hi you are connected here");
+  res.send("Hi you are connected");
 });
 
 app.post("/signup", async (req, res) => {
