@@ -30,4 +30,4 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
           chmod 700 /home/runner/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "docker stop user_backend && docker run --name user_backend -d -p 8080:8080 100xdevs/user-app-backend:${{ github.sha }}"
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "docker stop chalk_frontend || true && docker rm chalk_frontend || true && docker run --name chalk_frontend -d -p 8080:8080 himanshumishra3198/chalk-app-frontend:${{ github.sha }}"
