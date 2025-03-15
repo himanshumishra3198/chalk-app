@@ -28,4 +28,4 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
           chmod 700 /home/runner/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "sudo docker system prune -af --volumes && sudo rm -rf /root/.cache && docker stop chalk_backend || true && docker rm chalk_backend || true && docker run --name chalk_backend -d -p 8080:8080 himanshumishra3198/chalk-app-backend:${{ github.sha }}"
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "sudo docker system prune -af --volumes && sudo rm -rf /root/.cache && docker stop chalk_backend || true && docker rm -f chalk_backend || true && docker run --name chalk_backend -d -p 8080:8080 himanshumishra3198/chalk-app-backend:${{ github.sha }}"
