@@ -24,8 +24,8 @@ jobs:
         with:
           context: .
           file: ./dockerfile/Dockerfile.frontend
-          build-args:
-            - DATABASE_URL=${{ secrets.DATABASE_URL }}
+          # build-args:
+          #   - DATABASE_URL=${{ secrets.DATABASE_URL }}
           push: true
           tags: himanshumishra3198/chalk-app-frontend:${{ github.sha }}
 
