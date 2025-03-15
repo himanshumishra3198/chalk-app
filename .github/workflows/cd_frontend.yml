@@ -29,8 +29,8 @@ jobs:
           push: true
           tags: himanshumishra3198/chalk-app-frontend:${{ github.sha }}
 
-      # - name: Deploy to vm
-      #   run: |
-      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-      #     chmod 700 /home/runner/ssh_key
-      #     ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "docker stop chalk_frontend || true && docker rm chalk_frontend || true && docker run --name chalk_frontend -d -p 3000:3000 -e DATABASE_URL=${{ secrets.DATABASE_URL }} himanshumishra3198/chalk-app-frontend:${{ github.sha }}"
+      - name: Deploy to vm
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
+          chmod 700 /home/runner/ssh_key
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "docker stop chalk_frontend || true && docker rm chalk_frontend || true && docker run --name chalk_frontend -d -p 3000:3000 -e DATABASE_URL=${{ secrets.DATABASE_URL }} himanshumishra3198/chalk-app-frontend:${{ github.sha }}"
