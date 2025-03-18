@@ -21,12 +21,19 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./dockerfile/Dockerfile.backend
+          file: ./dockerfile/Dockerfile.ws
           push: true
           tags: himanshumishra3198/chalk-app-backend:${{ github.sha }}
 
       - name: Deploy to droplet
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-          chmod 600 /home/runner/ssh_key
-          ssh -v -o StrictHostKeyChecking=no -i ~/ssh_key root@139.59.87.42 -t "docker stop chalk_backend && docker run --name chalk_backend -d -p 8080:8080 himanshumishra3198/chalk-app-backend:${{ github.sha }}"
+          echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 700 ~/ssh_key
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@139.59.87.42 << 'EOF'
+            # Clean up old containers and cache
+            docker system prune -af --volumes
+            docker stop chalk_backend 2>/dev/null && docker rm chalk_backend 2>/dev/null || true
+            # Run new container with restart policy
+            docker run --name chalk_backend -d --restart unless-stopped -p 8080:8080 \
+              himanshumishra3198/chalk-app-backend:${{ github.sha }}
+          EOF
