@@ -1,4 +1,5 @@
 name: Deploy the backend
+
 on:
   push:
     branches: [main]
@@ -7,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout the code or cloning the code
+      - name: Checkout the code
         uses: actions/checkout@v2
 
       - name: Docker login
@@ -16,7 +17,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push ## docker build and docker push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -24,8 +25,14 @@ jobs:
           push: true
           tags: himanshumishra3198/chalk-app-backend:${{ github.sha }}
 
-      - name: Deploy to vm
+      - name: Deploy to EC2 instance
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-          chmod 700 /home/runner/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "sudo docker system prune -af --volumes && sudo rm -rf /root/.cache && docker stop chalk_backend || true && docker rm -f chalk_backend || true && docker run --name chalk_backend -d -p 8080:8080 himanshumishra3198/chalk-app-backend:${{ github.sha }}"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 600 ~/ssh_key
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 << 'EOF'
+            # Clean up old containers and cache
+            docker system prune -af --volumes
+            docker stop chalk_backend 2>/dev/null && docker rm chalk_backend 2>/dev/null || true
+            # Run new container with restart policy
+            docker run --name chalk_backend -d --restart unless-stopped -p 8080:8080 himanshumishra3198/chalk-app-backend:${{ github.sha }}
+          EOF
