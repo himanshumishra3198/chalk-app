@@ -1,4 +1,5 @@
 name: Deploy the frontend
+
 on:
   push:
     branches: [main]
@@ -10,7 +11,7 @@ jobs:
       - name: Debug
         run: echo "Workflow triggered"
 
-      - name: checkout the code or cloning the code
+      - name: Checkout the code
         uses: actions/checkout@v2
 
       - name: Docker login
@@ -19,18 +20,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push ## docker build and docker push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./dockerfile/Dockerfile.frontend
-          # build-args:
-          #   - DATABASE_URL=${{ secrets.DATABASE_URL }}
           push: true
           tags: himanshumishra3198/chalk-app-frontend:${{ github.sha }}
 
-      - name: Deploy to vm
+      - name: Deploy to EC2 instance
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-          chmod 700 /home/runner/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 -t "sudo docker system prune -af --volumes && sudo rm -rf /root/.cache && docker stop chalk_frontend || true && docker rm chalk_frontend || true && docker run --name chalk_frontend -d -p 3000:3000 -e DATABASE_URL=${{ secrets.DATABASE_URL }} himanshumishra3198/chalk-app-frontend:${{ github.sha }}"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 600 ~/ssh_key
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@3.107.102.79 << 'EOF'
+            # Clean up old containers and cache
+            docker system prune -af --volumes
+            docker stop chalk_frontend 2>/dev/null && docker rm chalk_frontend 2>/dev/null || true
+            # Run new container with restart policy and env variable
+            docker run --name chalk_frontend -d --restart unless-stopped -p 3000:3000 \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              himanshumishra3198/chalk-app-frontend:${{ github.sha }}
+          EOF
