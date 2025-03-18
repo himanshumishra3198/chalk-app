@@ -28,11 +28,11 @@ jobs:
           push: true
           tags: himanshumishra3198/chalk-app-frontend:${{ github.sha }}
 
-      - name: Deploy to EC2 instance
+      - name: Deploy to droplet
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 600 ~/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@139.59.87.42 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@139.59.87.42 << 'EOF'
             # Clean up old containers and cache
             docker system prune -af --volumes
             docker stop chalk_frontend 2>/dev/null && docker rm chalk_frontend 2>/dev/null || true
