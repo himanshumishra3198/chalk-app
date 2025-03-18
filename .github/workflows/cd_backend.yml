@@ -28,5 +28,5 @@ jobs:
       - name: Deploy to droplet
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-          chmod 700 /home/runner/ssh_key
+          chmod 600 /home/runner/ssh_key
           ssh -v -o StrictHostKeyChecking=no -i ~/ssh_key root@139.59.87.42 -t "docker stop chalk_backend && docker run --name chalk_backend -d -p 8080:8080 himanshumishra3198/chalk-app-backend:${{ github.sha }}"
