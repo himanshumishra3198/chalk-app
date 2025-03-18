@@ -27,8 +27,9 @@ jobs:
 
       - name: Deploy to droplet
         run: |
+
           echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
-          chmod 700 ~/ssh_key
+          chmod 600 ~/ssh_key
           ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@139.59.87.42 << 'EOF'
             # Clean up old containers and cache
             docker system prune -af --volumes
