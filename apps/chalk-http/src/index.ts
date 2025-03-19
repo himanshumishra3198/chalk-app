@@ -28,6 +28,7 @@ app.get("/", (req, res) => {
 
 app.post("/signup", async (req, res) => {
   const parsedData = CreateUserSchema.safeParse(req.body);
+
   if (parsedData.success) {
     try {
       const user = await prismaClient.user.create({
@@ -56,6 +57,7 @@ app.post("/signup", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const parsedData = SigninUserSchema.safeParse(req.body);
+  res.send("code reached here");
   if (parsedData.success) {
     const user = await prismaClient.user.findFirst({
       where: {
