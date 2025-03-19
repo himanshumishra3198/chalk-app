@@ -24,6 +24,7 @@ jobs:
           file: ./dockerfile/Dockerfile.backend
           push: true
           tags: himanshumishra3198/chalk-app-backend:${{ github.sha }}
+          build-args: ${{ secrets.DATABASE_URL }}
 
       - name: Deploy to droplet
         run: |
