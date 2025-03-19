@@ -24,6 +24,8 @@ jobs:
           file: ./dockerfile/Dockerfile.ws
           push: true
           tags: himanshumishra3198/chalk-app-websocket:${{ github.sha }}
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
 
       - name: Deploy to droplet
         run: |

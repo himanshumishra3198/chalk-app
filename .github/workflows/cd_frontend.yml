@@ -27,6 +27,8 @@ jobs:
           file: ./dockerfile/Dockerfile.frontend
           push: true
           tags: himanshumishra3198/chalk-app-frontend:${{ github.sha }}
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
 
       - name: Deploy to droplet
         run: |

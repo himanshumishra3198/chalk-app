@@ -14,6 +14,10 @@ COPY ./turbo.json ./turbo.json
 COPY ./apps/chalk-websocket ./apps/chalk-websocket
 
 RUN pnpm install
+
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 RUN pnpm run db:generate
 RUN pnpm run build
 
