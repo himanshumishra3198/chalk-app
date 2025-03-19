@@ -29,7 +29,7 @@ jobs:
         run: |
           echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 700 ~/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@139.59.87.42 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@128.199.27.128 << 'EOF'
             # Clean up old containers and cache
             docker system prune -af --volumes
             docker stop chalk_backend 2>/dev/null && docker rm chalk_backend 2>/dev/null || true
