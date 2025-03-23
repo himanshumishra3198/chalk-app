@@ -9,6 +9,7 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
   async function handleLogin() {
     try {
@@ -22,12 +23,20 @@ export default function Login() {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
         router.push("/dashboard");
-      } else {
-        console.log(response.data);
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (e.response && e.response.data && e.response.data.error) {
+        setError(e.response.data.error || "Something went wrong");
+      } else {
+        setError("An error occurred");
+      }
       console.log(e);
+      setTimeout(() => {
+        setError("");
+      }, 5000);
     }
+
+    setLoading(false);
   }
   return (
     <div className="w-screen flex h-screen items-center justify-center">
@@ -42,6 +51,9 @@ export default function Login() {
             placeholder="password"
             type="password"
           />
+        </div>
+        <div className="text-red-500 text-sm mt-2 flex items-center justify-center font-mono font-extrabold">
+          {error}
         </div>
         <div className="text-white p-4 flex items-center justify-center">
           <Button

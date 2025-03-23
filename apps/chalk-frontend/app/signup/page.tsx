@@ -11,6 +11,8 @@ export default function Signup() {
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+
   let [loading, setLoading] = useState(false);
   const router = useRouter();
   async function handleSignup() {
@@ -26,12 +28,18 @@ export default function Signup() {
       });
       if (response.status === 201) {
         router.push("/login");
-      } else {
-        console.log(response.data);
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (e.response && e.response.data && e.response.data.error) {
+        setError(e.response.data.error || "Something went wrong");
+      } else {
+        setError("An error occurred");
+      }
       console.log(e);
     }
+    setTimeout(() => {
+      setError("");
+    }, 5000);
     setLoading(false);
   }
   return (
@@ -49,6 +57,12 @@ export default function Signup() {
             type="password"
           />
         </div>
+        {error && (
+          <div className="text-red-500 text-sm mt-2 flex items-center justify-center font-mono font-extrabold">
+            {error}
+          </div>
+        )}
+
         <div className="text-white p-4 flex items-center justify-center">
           <Button
             text="Signup"

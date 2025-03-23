@@ -42,11 +42,15 @@ app.post("/signup", async (req, res) => {
         user,
       });
       return;
-    } catch (e) {
-      res.status(403).json({
-        error: e,
-      });
-      return;
+    } catch (e: any) {
+      if (e.code === "P2002") {
+        res.status(409).json({
+          error: "User already exists",
+        });
+        return;
+      } else {
+        throw e;
+      }
     }
   } else {
     res.status(400).json({
@@ -70,6 +74,10 @@ app.post("/login", async (req, res) => {
       res.status(200).json({
         token,
       });
+    } else {
+      res.status(401).json({
+        error: "wrong email or password",
+      });
     }
   } else {
     res.status(401).json({
@@ -79,6 +87,27 @@ app.post("/login", async (req, res) => {
 });
 
 app.use(auth);
+
+app.get("/user", async (req, res) => {
+  try {
+    if (!req.userId) {
+      console.log("userId is not present");
+      return;
+    }
+    const user = await prismaClient.user.findUnique({
+      where: {
+        id: req.userId,
+      },
+    });
+    res.status(200).json({
+      user,
+    });
+  } catch (e) {
+    res.status(401).json({
+      error: e,
+    });
+  }
+});
 
 app.post("/room", async (req, res) => {
   const parsedData = CreateRoomSchema.safeParse(req.body);

@@ -8,6 +8,9 @@ export function useRooms(dependency: boolean[]) {
   let [error, setError] = useState<string | null>(null);
   async function getRooms() {
     const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
     const response = await axios.get(BACKEND_URL + "/rooms", {
       headers: {
         Authorization: token,

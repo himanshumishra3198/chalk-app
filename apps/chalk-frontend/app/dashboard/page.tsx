@@ -7,15 +7,41 @@ import { useEffect, useState } from "react";
 import { CreateRoom } from "./component/createRoom";
 import { JoinRoom } from "./component/joinRoom";
 import { useRooms } from "../../hooks/useRooms";
-import Link from "next/link";
 import axios from "axios";
 import { BACKEND_URL } from "../configs";
 import { useRouter } from "next/navigation";
+
+interface User {
+  name: string;
+  // Add other properties of the user object if needed
+}
 
 const Index = () => {
   let [createRoomOpen, setCreateRoomOpen] = useState(false);
   let [joinRoomOpen, setJoinRoomOpen] = useState(false);
   let [roomLeft, setRoomLeft] = useState(false);
+
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    const fetchUser = async () => {
+      const response = await axios.get(BACKEND_URL + "/user", {
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (response.status === 200) {
+        setUser(response.data.user);
+      }
+    };
+    fetchUser();
+  }, []);
+
   let { loading, rooms, error } = useRooms([
     createRoomOpen,
     joinRoomOpen,
@@ -54,7 +80,9 @@ const Index = () => {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-2xl font-bold text-gray-100">
-                Welcome back!
+                Welcome{" "}
+                {user && user.name.charAt(0).toUpperCase() + user.name.slice(1)}
+                !
               </h1>
               <p className="text-gray-400 mt-1">
                 Manage your rooms and connections

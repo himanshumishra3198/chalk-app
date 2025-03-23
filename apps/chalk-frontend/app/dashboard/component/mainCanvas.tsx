@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 
 import Toolbar from "./toolBar";
 
 import { InitDraw } from "../../../draw";
 import { UserAvatar } from "@repo/ui/userAvatar";
 import { useRoomUsers } from "../../../hooks/useRoomUsers";
+import { Button } from "@repo/ui/button";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 export function MainCanvas({ room, ws }: { room: any; ws: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [selectedTool, setSelectedTool] = useState<string>("Select");
+
+  const router = useRouter();
 
   let { users, loading, error } = useRoomUsers(room.id);
   let userAvatars;
@@ -22,6 +27,10 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
         </div>
       );
     });
+  }
+
+  function handleExit() {
+    router.push("/dashboard");
   }
 
   useEffect(() => {
@@ -59,8 +68,18 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
 
   return (
     <div className="h-screen w-screen bg-black grid grid-cols-8 grid-rows-1">
-      <div className="flex flex-col gap-4 col-span-1 border-white/10 border-r-2 p-4">
-        {userAvatars}
+      <div className="flex flex-col justify-between col-span-1 border-white/10 border-r-2 p-4">
+        <div className="flex flex-col gap-4 ">{userAvatars}</div>
+        <div className="p-4 border-t border-gray-800">
+          <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm">
+            <Button
+              variant="secondary"
+              text="exit"
+              onClick={handleExit}
+              icon={<LogOut />}
+            />
+          </div>
+        </div>
       </div>
       <div
         className={`col-span-7 ${selectedTool === "Select" ? "" : "cursor-crosshair"}`}
