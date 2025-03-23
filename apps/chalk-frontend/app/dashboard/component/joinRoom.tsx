@@ -14,6 +14,7 @@ export function JoinRoom({
   onClose: () => void;
 }) {
   const [disabled, setDisabled] = useState(false);
+  const [error, setError] = useState("");
   const slugRef = useRef<HTMLInputElement>(null);
 
   async function handleJoinRoom() {
@@ -36,8 +37,12 @@ export function JoinRoom({
           },
         }
       );
-      if (!(received.status === 200)) {
-        console.log("no room present");
+      if (!received.data.room) {
+        setError("Room not found");
+        setDisabled(false);
+        setTimeout(() => {
+          setError("");
+        }, 5000);
         return;
       }
       const roomId = received.data.room.id;
@@ -82,6 +87,13 @@ export function JoinRoom({
             <div className="p-4 flex flex-col gap-4">
               <InputBox type="text" placeholder="slug..." reference={slugRef} />
             </div>
+
+            {error && (
+              <div className="text-red-500 text-sm mt-2 flex items-center justify-center font-mono font-extrabold">
+                {error}
+              </div>
+            )}
+
             <div className="p-4 flex justify-center items-center">
               <Button
                 text="Join"

@@ -54,7 +54,6 @@ const Index = () => {
   };
 
   const handleJoinRoom = () => {
-    console.log(rooms);
     setJoinRoomOpen(true);
   };
 
