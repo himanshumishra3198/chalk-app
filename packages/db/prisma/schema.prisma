@@ -13,8 +13,10 @@ model User {
   password String
   name String
   photo String?
+  online Boolean @default(false)
   chats Chat[]
   rooms Room[] @relation("RoomAdmin")
+
   
   joinedRooms RoomUser[] 
 }

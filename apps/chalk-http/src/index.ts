@@ -70,6 +70,10 @@ app.post("/login", async (req, res) => {
       },
     });
     if (user) {
+      await prismaClient.user.update({
+        where: { id: user.id },
+        data: { online: true },
+      });
       const token = jwt.sign({ userId: user.id }, JWT_SECRET);
       res.status(200).json({
         token,
@@ -87,6 +91,27 @@ app.post("/login", async (req, res) => {
 });
 
 app.use(auth);
+
+app.post("/logout", async (req, res) => {
+  try {
+    if (!req.userId) {
+      console.log("userId is not present"); // or throw an error
+      return;
+    } else {
+      await prismaClient.user.update({
+        where: { id: req.userId },
+        data: { online: false },
+      });
+      res.status(200).json({
+        message: "logged out",
+      });
+    }
+  } catch (e) {
+    res.status(401).json({
+      error: e,
+    });
+  }
+});
 
 app.get("/user", async (req, res) => {
   try {
@@ -262,12 +287,16 @@ app.get("/roomUsers/:roomId", async (req, res) => {
 
     const users = await prismaClient.roomUser.findMany({
       where: { roomId },
-      select: { user: { select: { name: true } } },
+      select: { user: { select: { name: true, online: true, id: true } } },
     });
 
-    const userNames = users.map((roomUser) => roomUser.user.name);
+    const userInfo = users.map((roomUser) => ({
+      name: roomUser.user.name,
+      online: roomUser.user.online,
+      id: roomUser.user.id,
+    }));
 
-    res.json({ users: userNames });
+    res.json({ users: userInfo });
   } catch (error) {
     console.error("Error fetching room users:", error);
     res.status(500).json({ error: "Internal server error" });

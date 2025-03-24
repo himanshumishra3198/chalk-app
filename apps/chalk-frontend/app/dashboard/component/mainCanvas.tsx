@@ -13,20 +13,43 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [selectedTool, setSelectedTool] = useState<string>("Select");
-
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    ws.send(JSON.stringify({ type: "online_users" }));
+  }, []);
+
+  ws.onmessage = (event: any) => {
+    const data = JSON.parse(event.data);
+    if (data.type === "online_users") {
+      setOnlineUsers(data.users);
+    }
+  };
 
   let { users, loading, error } = useRoomUsers(room.id);
   let userAvatars;
   if (!loading) {
     console.log(users);
-    userAvatars = users.map((user: string, index) => {
-      return (
-        <div key={index}>
-          <UserAvatar name={user.split(" ")[0]} />
-        </div>
-      );
-    });
+    userAvatars = users.map(
+      (
+        user: {
+          name: string;
+          online: boolean;
+          id: string;
+        },
+        index
+      ) => {
+        return (
+          <div key={index}>
+            <UserAvatar
+              name={user.name.split(" ")[0]}
+              online={onlineUsers.includes(user.id)}
+            />
+          </div>
+        );
+      }
+    );
   }
 
   function handleExit() {

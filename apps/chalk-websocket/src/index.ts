@@ -28,6 +28,7 @@ interface UsersSchema {
 }
 
 const users: UsersSchema[] = [];
+const onlineUsers: string[] = [];
 
 function verifyUser(token: string) {
   try {
@@ -63,6 +64,8 @@ wss.on("connection", (ws, req) => {
     return;
   }
 
+  onlineUsers.push(userId);
+
   const existingUser = users.find((user) => user.userId === userId);
   if (!existingUser) {
     users.push({ userId, rooms: [], ws });
@@ -74,6 +77,8 @@ wss.on("connection", (ws, req) => {
     // Remove disconnected users
     const index = users.findIndex((user) => user.ws === ws);
     if (index !== -1) users.splice(index, 1);
+    const onlineIndex = onlineUsers.findIndex((id) => id === userId);
+    if (onlineIndex !== -1) onlineUsers.splice(onlineIndex, 1); // Remove user from onlineUsers
   });
 
   users.push({
@@ -86,8 +91,14 @@ wss.on("connection", (ws, req) => {
     const parsedData = JSON.parse(data as unknown as string);
     const user = users.find((user) => user.ws === ws);
     if (!user) return;
-
-    if (parsedData.type === "join_room") {
+    if (parsedData.type === "online_users") {
+      ws.send(
+        JSON.stringify({
+          type: "online_users",
+          users: onlineUsers,
+        })
+      );
+    } else if (parsedData.type === "join_room") {
       if (user && notAlreadySubscribed(user.rooms, parsedData.roomId))
         user.rooms.push(parsedData.roomId);
     } else if (parsedData.type === "leave_room") {
