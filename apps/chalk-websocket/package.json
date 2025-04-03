@@ -16,11 +16,14 @@
   "description": "",
   "dependencies": {
     "@repo/common": "workspace:*",
+    "@repo/redis": "workspace:*",
     "@repo/db": "workspace:*",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/ws": "^8.5.14",
+    "bullmq": "^5.46.0",
     "jsonwebtoken": "^9.0.2",
     "typescript": "^5.7.3",
+    "uuid-int": "^3.1.0",
     "ws": "^8.18.0"
   }
 }

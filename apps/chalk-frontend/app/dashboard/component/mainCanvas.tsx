@@ -14,6 +14,7 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [selectedTool, setSelectedTool] = useState<string>("Select");
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [renderme, setRerender] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -82,12 +83,12 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
       const abortController = new AbortController();
       const { signal } = abortController;
       // Re-initialize drawing logic with the new selectedTool
-      InitDraw({ myCanvas, ctx, ws, room, selectedTool, signal });
+      InitDraw({ myCanvas, ctx, ws, room, selectedTool, signal, setRerender });
       return () => {
         abortController.abort();
       };
     }
-  }, [canvasSize, selectedTool, room, ws]); // Re-run when canvasSize or selectedTool changes
+  }, [canvasSize, selectedTool, room, ws, renderme]); // Re-run when canvasSize or selectedTool changes
 
   return (
     <div className="h-screen w-screen bg-black grid grid-cols-8 grid-rows-1">

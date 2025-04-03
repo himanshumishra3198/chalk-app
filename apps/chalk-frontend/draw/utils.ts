@@ -231,6 +231,7 @@ export async function getExistingShapes(roomId: number) {
 
   if (res.status == 200) {
     const messages = res.data.messages;
+    console.log(messages);
     let shapes = messages.map((x: { message: string }) => {
       const message = JSON.parse(x.message);
       return message;

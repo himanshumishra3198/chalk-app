@@ -1,5 +1,7 @@
 import express from "express";
 import { prismaClient } from "@repo/db/client";
+import { redisClient } from "@repo/redis/redis";
+
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import {
@@ -229,18 +231,40 @@ app.get("/slugToRoom/:slug", async (req, res) => {
 
 app.get("/chat/:roomId", async (req, res) => {
   try {
+    const roomId = Number(req.params.roomId);
+    const chatKey = `chat:${roomId}:messages`;
+
+    const cachedMessages = await redisClient.lRange(chatKey, 0, -1);
+
+    if (cachedMessages.length > 0) {
+      const parsedMessages = cachedMessages.map((msg) => JSON.parse(msg));
+
+      if (parsedMessages.length > 0) {
+        res.status(200).json({
+          source: "redis",
+          messages: parsedMessages,
+        });
+        return;
+      }
+    }
+
     const messages = await prismaClient.chat.findMany({
-      where: {
-        roomId: Number(req.params.roomId),
-      },
+      where: { roomId },
     });
+
+    if (messages.length > 0) {
+      for (const msg of messages) {
+        await redisClient.rPush(chatKey, JSON.stringify(msg));
+      }
+      await redisClient.expire(chatKey, 3600);
+    }
     res.status(200).json({
+      source: "postgres",
       messages,
     });
   } catch (e) {
-    res.status(400).json({
-      message: e,
-    });
+    console.error("Error fetching messages:", e);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -290,11 +314,13 @@ app.get("/roomUsers/:roomId", async (req, res) => {
       select: { user: { select: { name: true, online: true, id: true } } },
     });
 
-    const userInfo = users.map((roomUser) => ({
-      name: roomUser.user.name,
-      online: roomUser.user.online,
-      id: roomUser.user.id,
-    }));
+    const userInfo = users.map(
+      (roomUser: { user: { name: any; online: any; id: any } }) => ({
+        name: roomUser.user.name,
+        online: roomUser.user.online,
+        id: roomUser.user.id,
+      })
+    );
 
     res.json({ users: userInfo });
   } catch (error) {

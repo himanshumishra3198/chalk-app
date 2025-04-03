@@ -19,6 +19,7 @@ interface PlayProps {
   room: any;
   selectedTool: string;
   signal: AbortSignal;
+  setRerender: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -39,10 +40,12 @@ export async function InitDraw({
   room,
   selectedTool,
   signal,
+  setRerender,
 }: PlayProps) {
   if (!ctx || !ws || !room) return;
   console.log(selectedTool);
   existingShapes = await getExistingShapes(room.id);
+
   clearCanvas(ctx, myCanvas, existingShapes);
 
   ws.onmessage = (e) => {
@@ -220,6 +223,7 @@ export async function InitDraw({
       }
     }
     if (selectedTool !== "Select") clearCanvas(ctx, myCanvas, existingShapes);
+    setRerender((prev) => !prev);
   };
 
   const mouseMoveHandler = (e: MouseEvent) => {

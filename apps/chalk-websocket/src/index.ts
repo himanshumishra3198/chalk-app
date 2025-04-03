@@ -2,6 +2,9 @@ import { JWT_SECRET } from "@repo/common/config";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { WebSocketServer, WebSocket } from "ws";
 import { prismaClient } from "@repo/db/client";
+
+import { addChatToQueue, removeChatFromQueue } from "./utils";
+
 const wss = new WebSocketServer({ port: 8081 });
 
 // const users = [
@@ -121,18 +124,21 @@ wss.on("connection", (ws, req) => {
       });
       const parsedMessage = JSON.parse(message);
       if (parsedMessage.type === "Eraser") {
+        removeChatFromQueue({
+          roomId: parsedData.roomId,
+          message: parsedData.message,
+          userId: user.userId,
+        });
         await prismaClient.chat.deleteMany({
           where: {
             message: parsedMessage.shape,
           },
         });
       } else {
-        await prismaClient.chat.create({
-          data: {
-            roomId: parsedData.roomId,
-            message: parsedData.message,
-            userId: user.userId,
-          },
+        await addChatToQueue({
+          roomId: parsedData.roomId,
+          message: parsedData.message,
+          userId: user.userId,
         });
       }
     }

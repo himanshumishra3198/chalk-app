@@ -14,9 +14,13 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.5.0",
-    "prisma": "^6.5.0"
+    "prisma": "^6.5.0",
+    "redis": "^4.7.0",
+    "typescript": "^5.8.2"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.12.0",
+    "@types/redis": "^4.0.11"
   }
 }
