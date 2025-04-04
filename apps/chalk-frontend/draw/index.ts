@@ -9,9 +9,8 @@ import {
   createPencil,
   drawDiamond,
   getExistingShapes,
-  createText,
 } from "./utils";
-import { Circle } from "lucide-react";
+
 interface PlayProps {
   myCanvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D | null;
@@ -19,7 +18,6 @@ interface PlayProps {
   room: any;
   selectedTool: string;
   signal: AbortSignal;
-  setRerender: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -40,7 +38,6 @@ export async function InitDraw({
   room,
   selectedTool,
   signal,
-  setRerender,
 }: PlayProps) {
   if (!ctx || !ws || !room) return;
   console.log(selectedTool);
@@ -223,7 +220,6 @@ export async function InitDraw({
       }
     }
     if (selectedTool !== "Select") clearCanvas(ctx, myCanvas, existingShapes);
-    setRerender((prev) => !prev);
   };
 
   const mouseMoveHandler = (e: MouseEvent) => {
