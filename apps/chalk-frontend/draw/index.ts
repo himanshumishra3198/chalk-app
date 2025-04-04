@@ -8,7 +8,6 @@ import {
   createLine,
   createPencil,
   drawDiamond,
-  getExistingShapes,
 } from "./utils";
 
 interface PlayProps {
@@ -18,6 +17,7 @@ interface PlayProps {
   room: any;
   selectedTool: string;
   signal: AbortSignal;
+  loadedShapes: Shape[];
 }
 
 function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -38,10 +38,11 @@ export async function InitDraw({
   room,
   selectedTool,
   signal,
+  loadedShapes,
 }: PlayProps) {
   if (!ctx || !ws || !room) return;
   console.log(selectedTool);
-  existingShapes = await getExistingShapes(room.id);
+  existingShapes = loadedShapes;
 
   clearCanvas(ctx, myCanvas, existingShapes);
 

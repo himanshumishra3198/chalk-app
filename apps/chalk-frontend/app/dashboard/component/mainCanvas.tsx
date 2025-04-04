@@ -9,7 +9,15 @@ import { Button } from "@repo/ui/button";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
-export function MainCanvas({ room, ws }: { room: any; ws: any }) {
+export function MainCanvas({
+  room,
+  ws,
+  existingShapes,
+}: {
+  room: any;
+  ws: any;
+  existingShapes: any;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [selectedTool, setSelectedTool] = useState<string>("Select");
@@ -83,7 +91,15 @@ export function MainCanvas({ room, ws }: { room: any; ws: any }) {
       const abortController = new AbortController();
       const { signal } = abortController;
       // Re-initialize drawing logic with the new selectedTool
-      InitDraw({ myCanvas, ctx, ws, room, selectedTool, signal });
+      InitDraw({
+        myCanvas,
+        ctx,
+        ws,
+        room,
+        selectedTool,
+        signal,
+        loadedShapes: existingShapes,
+      });
       return () => {
         abortController.abort();
       };
