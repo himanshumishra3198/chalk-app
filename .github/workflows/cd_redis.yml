@@ -1,0 +1,28 @@
+name: Deploy Redis
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Deploy Redis to Droplet
+        run: |
+          echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 700 ~/ssh_key
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@128.199.27.128 << 'EOF'
+            # Pull the latest Redis image
+            docker pull redis:latest
+            
+            # Remove old Redis container if running
+            docker stop redis_server 2>/dev/null && docker rm redis_server 2>/dev/null || true
+            
+            # Run Redis container with a persistent volume and restart policy
+            docker run --name redis_server -d --restart unless-stopped \
+              -p 6379:6379 -v redis_data:/data redis:latest --save 60 1 --loglevel warning
+          EOF
