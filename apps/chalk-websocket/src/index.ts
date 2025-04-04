@@ -124,6 +124,8 @@ wss.on("connection", (ws, req) => {
       });
       const parsedMessage = JSON.parse(message);
       if (parsedMessage.type === "Eraser") {
+        console.log("parsedData", parsedData);
+        console.log("parsedMessage", parsedMessage);
         await removeChatFromQueue({
           roomId: parsedData.roomId,
           message: parsedMessage.shape,
