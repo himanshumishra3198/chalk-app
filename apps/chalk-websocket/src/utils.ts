@@ -65,6 +65,8 @@ export const removeChatFromQueue = async ({
 
   const updatedMessages = messages.filter((msg) => {
     const parsedMessage = JSON.parse(msg);
+    console.log("parsedMessage", parsedMessage.message);
+    console.log("message", message);
     return parsedMessage.message !== message;
   });
   await redisClient.del(chatKey);
