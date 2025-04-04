@@ -2,7 +2,7 @@ import { createClient, RedisClientType } from "redis";
 
 const redisClient: RedisClientType = createClient({
   socket: {
-    host: "localhost",
+    host: "redis_server",
     port: 6379,
   },
 });
