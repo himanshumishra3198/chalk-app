@@ -26,16 +26,21 @@ jobs:
           tags: himanshumishra3198/chalk-app-websocket:${{ github.sha }}
           build-args: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
+            REDIS_HOST=redis_server
 
       - name: Deploy to droplet
         run: |
           echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 700 ~/ssh_key
           ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@128.199.27.128 << 'EOF'
-            # Clean up old containers and cache
-            docker system prune -af --volumes
+            # Create network if not exists
+            docker network inspect chalk_network >/dev/null 2>&1 || docker network create chalk_network
+
+            # Clean up old containers
             docker stop chalk_websocket 2>/dev/null && docker rm chalk_websocket 2>/dev/null || true
-            # Run new container with restart policy
-            docker run --name chalk_websocket -d --restart unless-stopped -p 8081:8081 \
+            
+            # Run new container attached to chalk_network
+            docker run --name chalk_websocket --network chalk_network -d --restart unless-stopped -p 8081:8081 \
+              -e REDIS_HOST=redis_server \
               himanshumishra3198/chalk-app-websocket:${{ github.sha }}
           EOF

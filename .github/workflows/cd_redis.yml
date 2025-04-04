@@ -16,13 +16,16 @@ jobs:
           echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 700 ~/ssh_key
           ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@128.199.27.128 << 'EOF'
-            # Pull the latest Redis image
+            # Create network if not exists
+            docker network inspect chalk_network >/dev/null 2>&1 || docker network create chalk_network
+
+            # Pull latest Redis image
             docker pull redis:latest
-            
+
             # Remove old Redis container if running
             docker stop redis_server 2>/dev/null && docker rm redis_server 2>/dev/null || true
-            
-            # Run Redis container with a persistent volume and restart policy
-            docker run --name redis_server -d --restart unless-stopped \
+
+            # Run Redis container in chalk_network
+            docker run --name redis_server --network chalk_network -d --restart unless-stopped \
               -p 6379:6379 -v redis_data:/data redis:latest --save 60 1 --loglevel warning
           EOF
