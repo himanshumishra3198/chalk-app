@@ -65,5 +65,19 @@ export const removeChatFromQueue = async ({
 
   const updatedMessages = messages.filter((msg) => {
     const parsedMessage = JSON.parse(msg);
+    return parsedMessage.message !== message;
+  });
+  await redisClient.del(chatKey);
+  if (updatedMessages.length > 0) {
+    for (const message of updatedMessages) {
+      await redisClient.rPush(chatKey, message);
+    }
+  }
+  await redisClient.expire(chatKey, 3600);
+  console.log(`message removed from redis for roomId: ${roomId}`);
+  await chatQueue.add("removeMessage", {
+    roomId,
+    message,
+    userId,
   });
 };

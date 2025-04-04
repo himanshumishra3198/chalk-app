@@ -126,13 +126,8 @@ wss.on("connection", (ws, req) => {
       if (parsedMessage.type === "Eraser") {
         removeChatFromQueue({
           roomId: parsedData.roomId,
-          message: parsedData.message,
+          message: parsedMessage.shape,
           userId: user.userId,
-        });
-        await prismaClient.chat.deleteMany({
-          where: {
-            message: parsedMessage.shape,
-          },
         });
       } else {
         await addChatToQueue({
