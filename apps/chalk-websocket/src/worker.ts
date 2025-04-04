@@ -36,25 +36,12 @@ const worker = new Worker(
 
       console.log(`Persisted chat message for room ${roomId}`);
     } else if (name === "removeMessage") {
-      const { roomId, message, userId } = data;
-
-      const chatKey = `chat:${roomId}:messages`;
-      const messages = await redisClient.lRange(chatKey, 0, -1);
-
-      const updatedMessages = messages.filter((msg) => {
-        const parsedMessage = JSON.parse(msg);
-        return parsedMessage.message !== message;
+      const { message } = data;
+      await prismaClient.chat.deleteMany({
+        where: {
+          message: message,
+        },
       });
-
-      await redisClient.del(chatKey);
-      if (updatedMessages.length > 0) {
-        for (const message of updatedMessages) {
-          await redisClient.rPush(chatKey, message);
-        }
-      }
-      await redisClient.expire(chatKey, 3600);
-
-      console.log(`Removed chat message for room ${roomId}`);
     }
   },
   {
