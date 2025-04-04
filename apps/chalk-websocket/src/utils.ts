@@ -3,7 +3,7 @@ import { Queue } from "bullmq";
 import UUID from "uuid-int";
 export const chatQueue = new Queue("chatQueue", {
   connection: {
-    host: "localhost",
+    host: "redis_server",
     port: 6379,
   },
 });
