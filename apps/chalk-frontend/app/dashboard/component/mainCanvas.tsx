@@ -104,7 +104,7 @@ export function MainCanvas({
         abortController.abort();
       };
     }
-  }, [canvasSize, selectedTool, room, ws]); // Re-run when canvasSize or selectedTool changes
+  }, [canvasSize, selectedTool, room, ws, existingShapes]); // Re-run when canvasSize or selectedTool changes
 
   return (
     <div className="h-screen w-screen bg-black grid grid-cols-8 grid-rows-1">

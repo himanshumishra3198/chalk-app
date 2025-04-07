@@ -109,35 +109,40 @@ wss.on("connection", (ws, req) => {
         (roomId) => roomId !== String(parsedData.roomId)
       );
     } else if (parsedData.type === "chat") {
-      let message = parsedData.message;
+      const { message, roomId } = parsedData;
+      const parsedMessage = JSON.parse(message);
 
-      users.map((eachUser) => {
-        if (eachUser.rooms.includes(parsedData.roomId) && eachUser.ws !== ws) {
+      users.forEach((eachUser) => {
+        if (eachUser.rooms.includes(roomId) && eachUser.ws !== ws) {
           eachUser.ws.send(
             JSON.stringify({
               type: "chat",
-              message: parsedData.message,
-              roomId: parsedData.roomId,
+              message,
+              roomId,
             })
           );
         }
       });
-      const parsedMessage = JSON.parse(message);
-      if (parsedMessage.type === "Eraser") {
-        console.log("parsedData", parsedData);
-        console.log("parsedMessage", parsedMessage);
-        await removeChatFromQueue({
-          roomId: parsedData.roomId,
-          message: parsedMessage.shape,
-          userId: user.userId,
-        });
-      } else {
-        await addChatToQueue({
-          roomId: parsedData.roomId,
-          message: parsedData.message,
-          userId: user.userId,
-        });
-      }
+
+      (async () => {
+        try {
+          if (parsedMessage.type === "Eraser") {
+            await removeChatFromQueue({
+              roomId,
+              message: parsedMessage.shape,
+              userId: user.userId,
+            });
+          } else {
+            await addChatToQueue({
+              roomId,
+              message,
+              userId: user.userId,
+            });
+          }
+        } catch (error) {
+          console.error("Redis update failed:", error);
+        }
+      })();
     }
   });
 });

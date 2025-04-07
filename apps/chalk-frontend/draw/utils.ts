@@ -10,6 +10,7 @@ export function clearCanvas(
   existingShapes: Shape[]
 ) {
   if (ctx) {
+    console.log("clearing canvas");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     existingShapes.map((shape) => {
       if (shape.type === "Rectangle") {

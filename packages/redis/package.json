@@ -19,6 +19,8 @@
     "@repo/typescript-config": "workspace:*"
   },
   "dependencies": {
+    "@types/node": "^22.12.0",
+    "dotenv": "^16.4.7",
     "redis": "^4.7.0",
     "typescript": "^5.8.2"
   }

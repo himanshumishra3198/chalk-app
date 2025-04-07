@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { isEqual } from "lodash";
 import { Shape } from "./shapes";
 import { isPointInside } from "./utils";
 import {
@@ -46,12 +46,25 @@ export async function InitDraw({
 
   clearCanvas(ctx, myCanvas, existingShapes);
 
-  ws.onmessage = (e) => {
+  const handleMessage = (e: any) => {
     const message = JSON.parse(e.data);
     if (message.type === "chat") {
       const checkErase = JSON.parse(message.message);
+      console.log(checkErase);
       if (checkErase.type === "Eraser") {
-        existingShapes.splice(checkErase.index, 1);
+        const currShape = JSON.parse(checkErase.shape);
+
+        let index = -1;
+        for (let i = 0; i < existingShapes.length; i++) {
+          if (isEqual(existingShapes[i], currShape)) {
+            console.log(existingShapes[i], currShape);
+            index = i;
+            break;
+          }
+        }
+        if (index !== -1) {
+          existingShapes.splice(index, 1);
+        }
       } else {
         existingShapes.push(JSON.parse(message.message));
       }
@@ -59,7 +72,7 @@ export async function InitDraw({
       clearCanvas(ctx, myCanvas, existingShapes);
     }
   };
-
+  ws.addEventListener("message", handleMessage, { signal });
   let clicked = false;
   let startX = 0,
     startY = 0;
@@ -234,11 +247,12 @@ export async function InitDraw({
           return isPointInside({ x, y }, shape);
         });
         if (shapeIndex !== -1) {
+          const erasedShape = existingShapes[shapeIndex];
           existingShapes.splice(shapeIndex, 1);
           const message = JSON.stringify({
             type: "Eraser",
             index: shapeIndex,
-            shape: JSON.stringify(existingShapes[shapeIndex]),
+            shape: JSON.stringify(erasedShape),
           });
 
           ws.send(
@@ -280,4 +294,7 @@ export async function InitDraw({
   myCanvas.addEventListener("mousedown", mouseDownHandler, { signal });
   myCanvas.addEventListener("mouseup", mouseUpHandler, { signal });
   myCanvas.addEventListener("mousemove", mouseMoveHandler, { signal });
+  return () => {
+    ws.removeEventListener("message", handleMessage);
+  };
 }

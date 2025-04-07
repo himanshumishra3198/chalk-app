@@ -1,4 +1,5 @@
 import { redisClient } from "@repo/redis/redis";
+require("dotenv").config();
 import { Queue } from "bullmq";
 import UUID from "uuid-int";
 export const chatQueue = new Queue("chatQueue", {
@@ -65,8 +66,7 @@ export const removeChatFromQueue = async ({
 
   const updatedMessages = messages.filter((msg) => {
     const parsedMessage = JSON.parse(msg);
-    console.log("parsedMessage", parsedMessage.message);
-    console.log("message", message);
+
     return parsedMessage.message !== message;
   });
   await redisClient.del(chatKey);
