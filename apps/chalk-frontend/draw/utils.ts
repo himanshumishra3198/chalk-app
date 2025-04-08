@@ -2,7 +2,6 @@ import axios from "axios";
 
 import { Shape } from "./shapes";
 import { BACKEND_URL } from "../app/configs";
-import { X } from "lucide-react";
 
 export function clearCanvas(
   ctx: CanvasRenderingContext2D | null,

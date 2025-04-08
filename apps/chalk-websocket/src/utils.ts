@@ -71,8 +71,12 @@ export const removeChatFromQueue = async ({
   });
   await redisClient.del(chatKey);
   if (updatedMessages.length > 0) {
-    for (const message of updatedMessages) {
-      await redisClient.rPush(chatKey, message);
+    if (updatedMessages.length > 0) {
+      const pipeline = redisClient.multi();
+      updatedMessages.forEach((msg) => {
+        pipeline.rPush(chatKey, msg);
+      });
+      await pipeline.exec();
     }
   }
   await redisClient.expire(chatKey, 3600);
