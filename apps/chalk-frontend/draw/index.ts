@@ -1,6 +1,6 @@
-import { isEqual } from "lodash";
+import { isEqual, update } from "lodash";
 import { Shape } from "./shapes";
-import { isPointInside } from "./utils";
+import { getShapeOffset, isPointInside, updateShapePosition } from "./utils";
 import {
   clearCanvas,
   createArrow,
@@ -28,7 +28,10 @@ function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
 }
 
 let existingShapes: Shape[] = [];
-
+let selectedShapeIndex = -1;
+let offesetX = 0,
+  offesetY = 0;
+let selectedShape: Shape | undefined = undefined;
 // const existingSh apes: Shape[] = [];
 
 export async function InitDraw({
@@ -85,14 +88,31 @@ export async function InitDraw({
     startX = x;
     startY = y;
     points = [{ x, y }];
+    if (selectedTool === "Select") {
+      selectedShapeIndex = existingShapes.findIndex((shape) => {
+        return isPointInside({ x, y }, shape);
+      });
+      if (selectedShapeIndex !== -1) {
+        selectedShape = existingShapes[selectedShapeIndex];
+        if (selectedShape) {
+          let offsets = getShapeOffset(selectedShape, x, y);
+          offesetX = offsets.offsetX;
+          offesetY = offsets.offsetY;
+        }
+      }
+    }
   };
   let message = "";
   const mouseUpHandler = (e: MouseEvent) => {
     clicked = false;
     clearCanvas(ctx, myCanvas, existingShapes);
     let { x, y } = getMousePosition(myCanvas, e);
-
-    if (selectedTool === "Rectangle") {
+    if (selectedTool === "Select") {
+      selectedShapeIndex = -1;
+      offesetX = 0;
+      offesetY = 0;
+      selectedShape = undefined;
+    } else if (selectedTool === "Rectangle") {
       existingShapes.push({
         type: "Rectangle",
         x: startX,
@@ -264,6 +284,16 @@ export async function InitDraw({
           );
           clearCanvas(ctx, myCanvas, existingShapes);
         }
+      } else if (selectedTool === "Select") {
+        if (selectedShapeIndex !== -1) {
+          if (selectedShape) {
+            const newX = x - offesetX;
+            const newY = y - offesetY;
+            updateShapePosition(selectedShape, newX, newY);
+            // existingShapes[selectedShapeIndex] = selectedShape;
+            clearCanvas(ctx, myCanvas, existingShapes);
+          }
+        }
       } else if (selectedTool === "Rectangle") {
         ctx.strokeRect(startX, startY, x - startX, y - startY);
       } else if (selectedTool === "Circle") {
@@ -284,7 +314,6 @@ export async function InitDraw({
       } else if (selectedTool === "Arrow") {
         createArrow({ ctx, startX, startY, x, y });
       } else if (selectedTool === "Pencil") {
-        let { x, y } = getMousePosition(myCanvas, e);
         points.push({ x, y });
         createPencil({ ctx, points, color: "white" });
       }

@@ -68,9 +68,20 @@ export function createPencil({
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
 
-  ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
+  if (points[0]) {
+    ctx.moveTo(points[0].x, points[0].y);
+  }
+  if (points.length > 1) {
+    for (let i = 1; i < points.length - 1; i++) {
+      const midX = ((points[i]?.x ?? 0) + (points[i + 1]?.x ?? 0)) / 2;
+      const midY = ((points[i]?.y ?? 0) + (points[i + 1]?.y ?? 0)) / 2;
+      ctx.quadraticCurveTo(points[i]?.x ?? 0, points[i]?.y ?? 0, midX, midY);
+    }
+  }
+
+  // Handle the last point
+  if (points[points.length - 1]) {
+    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
   }
 
   ctx.stroke();
@@ -337,5 +348,90 @@ export function isPointInside(
 
     default:
       return false;
+  }
+}
+
+export function updateShapePosition(
+  selectedShape: Shape,
+  newX: number,
+  newY: number
+): Shape {
+  if (
+    selectedShape.type === "Rectangle" ||
+    selectedShape.type === "Circle" ||
+    selectedShape.type === "Text"
+  ) {
+    selectedShape.x = newX;
+    selectedShape.y = newY;
+  } else if (
+    selectedShape.type === "Diamond" ||
+    selectedShape.type === "Line" ||
+    selectedShape.type === "Arrow"
+  ) {
+    const width = selectedShape.x - selectedShape.startX;
+    const height = selectedShape.y - selectedShape.startY;
+
+    selectedShape.startX = newX;
+    selectedShape.startY = newY;
+    selectedShape.x = newX + width;
+    selectedShape.y = newY + height;
+  } else if (selectedShape.type === "Pencil") {
+    const firstPoint = selectedShape.points[0];
+    if (!firstPoint) {
+      return selectedShape;
+    }
+    const dx = newX - firstPoint.x;
+    const dy = newY - firstPoint.y;
+
+    for (let point of selectedShape.points) {
+      point.x += dx;
+      point.y += dy;
+    }
+  }
+
+  return selectedShape;
+}
+
+export function getShapeOffset(
+  shape: Shape,
+  mouseX: number,
+  mouseY: number
+): {
+  offsetX: number;
+  offsetY: number;
+} {
+  switch (shape.type) {
+    case "Rectangle":
+    case "Circle":
+    case "Text":
+      return {
+        offsetX: mouseX - shape.x,
+        offsetY: mouseY - shape.y,
+      };
+
+    case "Diamond":
+    case "Line":
+    case "Arrow":
+      // We'll take the top-left corner (startX/startY) as the reference
+      return {
+        offsetX: mouseX - shape.startX,
+        offsetY: mouseY - shape.startY,
+      };
+
+    case "Pencil":
+      // For pencil, use the first point as reference
+      if (shape.points.length > 0) {
+        return {
+          offsetX:
+            shape.points && shape.points[0] ? mouseX - shape.points[0].x : 0,
+          offsetY:
+            shape.points && shape.points[0] ? mouseY - shape.points[0].y : 0,
+        };
+      } else {
+        return { offsetX: 0, offsetY: 0 };
+      }
+
+    default:
+      return { offsetX: 0, offsetY: 0 };
   }
 }

@@ -4,7 +4,7 @@ console.log(process.env.HOSTNAME);
 
 const redisClient: RedisClientType = createClient({
   socket: {
-    host: "redis_server",
+    host: "localhost",
     port: 6379,
   },
 });
