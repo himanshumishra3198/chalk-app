@@ -255,100 +255,148 @@ export async function getExistingShapes(roomId: number) {
   }
 }
 
-export function isPointInside(
+export function getShapeDistanceToPoint(
   point: { x: number; y: number },
   shape: Shape
-): boolean {
+): number {
   switch (shape.type) {
-    case "Rectangle":
-      return (
-        point.x >= shape.x &&
-        point.x <= shape.x + shape.width &&
-        point.y >= shape.y &&
-        point.y <= shape.y + shape.height
-      );
+    case "Rectangle": {
+      const x1 = Math.min(shape.x, shape.x + shape.width);
+      const x2 = Math.max(shape.x, shape.x + shape.width);
+      const y1 = Math.min(shape.y, shape.y + shape.height);
+      const y2 = Math.max(shape.y, shape.y + shape.height);
 
-    case "Circle":
-      const dist = Math.sqrt(
-        (point.x - shape.x) ** 2 + (point.y - shape.y) ** 2
-      );
-      return dist <= shape.radius;
+      const dx = Math.max(x1 - point.x, 0, point.x - x2);
+      const dy = Math.max(y1 - point.y, 0, point.y - y2);
+      return Math.sqrt(dx * dx + dy * dy); // 0 if inside
+    }
 
-    case "Diamond":
-      const dx = Math.abs(point.x - (shape.startX + shape.x) / 2);
-      const dy = Math.abs(point.y - (shape.startY + shape.y) / 2);
-      const halfWidth = Math.abs(shape.x - shape.startX) / 2;
-      const halfHeight = Math.abs(shape.y - shape.startY) / 2;
-      return dx / halfWidth + dy / halfHeight <= 1;
+    case "Circle": {
+      const dist = Math.hypot(point.x - shape.x, point.y - shape.y);
+      return Math.max(0, dist - shape.radius);
+    }
+
+    case "Diamond": {
+      const centerX = (shape.x + shape.startX) / 2;
+      const centerY = (shape.y + shape.startY) / 2;
+      const halfW = Math.abs(shape.x - shape.startX) / 2;
+      const halfH = Math.abs(shape.y - shape.startY) / 2;
+      const dx = Math.abs(point.x - centerX);
+      const dy = Math.abs(point.y - centerY);
+      const inside = dx / halfW + dy / halfH <= 1;
+      if (inside) return 0;
+      return Math.hypot(dx - halfW, dy - halfH);
+    }
 
     case "Line":
-      const distanceToLine = (
-        p: { x: number; y: number },
-        a: { x: number; y: number },
-        b: { x: number; y: number }
-      ) => {
+    case "Arrow": {
+      const a = { x: shape.startX, y: shape.startY };
+      const b = { x: shape.x, y: shape.y };
+      const len = Math.hypot(b.x - a.x, b.y - a.y);
+      if (len === 0) return Math.hypot(point.x - a.x, point.y - a.y);
+      const t =
+        ((point.x - a.x) * (b.x - a.x) + (point.y - a.y) * (b.y - a.y)) /
+        (len * len);
+      const clampedT = Math.max(0, Math.min(1, t));
+      const proj = {
+        x: a.x + clampedT * (b.x - a.x),
+        y: a.y + clampedT * (b.y - a.y),
+      };
+      return Math.hypot(point.x - proj.x, point.y - proj.y);
+    }
+
+    case "Pencil": {
+      let minDist = Infinity;
+      for (let i = 0; i < shape.points.length - 1; i++) {
+        const a = shape.points[i];
+        const b = shape.points[i + 1];
         const len = Math.hypot(b.x - a.x, b.y - a.y);
-        if (len === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+        if (len === 0) continue;
         const t =
-          ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (len * len);
+          ((point.x - a.x) * (b.x - a.x) + (point.y - a.y) * (b.y - a.y)) /
+          (len * len);
         const clampedT = Math.max(0, Math.min(1, t));
         const proj = {
           x: a.x + clampedT * (b.x - a.x),
           y: a.y + clampedT * (b.y - a.y),
         };
-        return Math.hypot(p.x - proj.x, p.y - proj.y);
-      };
-      return (
-        distanceToLine(
-          point,
-          { x: shape.startX, y: shape.startY },
-          { x: shape.x, y: shape.y }
-        ) < 5
-      );
+        const dist = Math.hypot(point.x - proj.x, point.y - proj.y);
+        minDist = Math.min(minDist, dist);
+      }
+      return minDist;
+    }
 
-    case "Arrow":
-      const distanceToArrowLine = (
-        p: { x: number; y: number },
-        a: { x: number; y: number },
-        b: { x: number; y: number }
-      ) => {
-        const len = Math.hypot(b.x - a.x, b.y - a.y);
-        if (len === 0) return Math.hypot(p.x - a.x, p.y - a.y);
-        const t =
-          ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (len * len);
-        const clampedT = Math.max(0, Math.min(1, t));
-        const proj = {
-          x: a.x + clampedT * (b.x - a.x),
-          y: a.y + clampedT * (b.y - a.y),
-        };
-        return Math.hypot(p.x - proj.x, p.y - proj.y);
-      };
-      return (
-        distanceToArrowLine(
-          point,
-          { x: shape.startX, y: shape.startY },
-          { x: shape.x, y: shape.y }
-        ) < 5
-      );
-
-    case "Pencil":
-      return shape.points.some(
-        (p) => Math.hypot(point.x - p.x, point.y - p.y) < 5
-      );
-
-    case "Text":
+    case "Text": {
       const textWidth = 100;
       const textHeight = 20;
-      return (
+      const inside =
         point.x >= shape.x &&
         point.x <= shape.x + textWidth &&
         point.y >= shape.y - textHeight &&
-        point.y <= shape.y
+        point.y <= shape.y;
+      if (inside) return 0;
+      const dx = Math.max(
+        shape.x - point.x,
+        0,
+        point.x - (shape.x + textWidth)
       );
+      const dy = Math.max(shape.y - textHeight - point.y, 0, point.y - shape.y);
+      return Math.sqrt(dx * dx + dy * dy);
+    }
 
     default:
-      return false;
+      return Infinity;
   }
+}
+
+function getShapeSize(shape: Shape): number {
+  switch (shape.type) {
+    case "Rectangle":
+      return shape.width * shape.height;
+    case "Circle":
+      return Math.PI * shape.radius * shape.radius;
+    case "Diamond":
+      return (
+        Math.abs(shape.x - shape.startX) * Math.abs(shape.y - shape.startY)
+      );
+    case "Line":
+    case "Arrow":
+      return Math.hypot(shape.x - shape.startX, shape.y - shape.startY);
+    case "Pencil":
+      return shape.points.length;
+    case "Text":
+      return 100 * 20; // fixed dimensions assumed in your isPointInside
+    default:
+      return Infinity;
+  }
+}
+export function getClosestShapeIndex(
+  point: { x: number; y: number },
+  shapes: Shape[]
+): number {
+  let closestIndex = -1;
+  let minDistance = Infinity;
+  let minSize = Infinity;
+  const threshold = 10;
+
+  shapes.forEach((shape, index) => {
+    const distance = getShapeDistanceToPoint(point, shape);
+
+    if (distance < threshold) {
+      const size = getShapeSize(shape);
+
+      if (
+        distance < minDistance ||
+        (distance === minDistance && size < minSize)
+      ) {
+        minDistance = distance;
+        minSize = size;
+        closestIndex = index;
+      }
+    }
+  });
+
+  return closestIndex;
 }
 
 export function updateShapePosition(

@@ -1,6 +1,10 @@
 import { isEqual, update } from "lodash";
 import { Shape } from "./shapes";
-import { getShapeOffset, isPointInside, updateShapePosition } from "./utils";
+import {
+  getShapeOffset,
+  getClosestShapeIndex,
+  updateShapePosition,
+} from "./utils";
 import {
   clearCanvas,
   createArrow,
@@ -89,9 +93,7 @@ export async function InitDraw({
     startY = y;
     points = [{ x, y }];
     if (selectedTool === "Select") {
-      selectedShapeIndex = existingShapes.findIndex((shape) => {
-        return isPointInside({ x, y }, shape);
-      });
+      selectedShapeIndex = getClosestShapeIndex({ x, y }, existingShapes);
       if (selectedShapeIndex !== -1) {
         selectedShape = existingShapes[selectedShapeIndex];
         if (selectedShape) {
@@ -263,9 +265,7 @@ export async function InitDraw({
       let { x, y } = getMousePosition(myCanvas, e);
 
       if (selectedTool === "Eraser") {
-        const shapeIndex = existingShapes.findIndex((shape) => {
-          return isPointInside({ x, y }, shape);
-        });
+        const shapeIndex = getClosestShapeIndex({ x, y }, existingShapes);
         if (shapeIndex !== -1) {
           const erasedShape = existingShapes[shapeIndex];
           existingShapes.splice(shapeIndex, 1);

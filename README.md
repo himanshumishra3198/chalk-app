@@ -29,10 +29,13 @@ cd chalk
 ```
 
 ### 2. Install dependencies
+
 ```bash
 pnpm install
 ```
+
 ### 3. Set up PostgreSQL
+
 You can use either:
 
 Option A: Local PostgreSQL via Docker
@@ -41,6 +44,7 @@ Update your .env file with the connection string:
 ```bash
 DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/postgres
 ```
+
 Option B: Use an online PostgreSQL provider like Neon
 Create a database and copy the connection string into your .env file:
 
@@ -49,15 +53,19 @@ DATABASE_URL=your_neon_database_url
 ```
 
 ### 4. Set up Redis (Required)
+
 Use Docker to run Redis, and make sure to name the container redis_server:
 
 ```bash
 docker run --name redis_server -p 6379:6379 -d redis
 ```
+
 ### 5. Run the development server
+
 ```bash
 pnpm run dev
 ```
+
 # Your app should now be running at http://localhost:3000
 
 ## 📸 Screenshots
@@ -76,5 +84,4 @@ pnpm run dev
 
 ### 🔄 Real-time Dashboard (GIF)
 
-![Real-time Collab](./assets/real-time-collab.gif)
-
+![Real-time Collab](./assets/dashboard.png)
