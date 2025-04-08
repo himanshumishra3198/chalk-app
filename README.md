@@ -1,58 +1,57 @@
-# Turborepo Tailwind CSS starter
+# 🖊️ Chalk – Real-Time Collaborative Whiteboard
 
-This Turborepo starter is maintained by the Turborepo core team.
+Chalk is a real-time collaborative whiteboard app where users can draw, write, and brainstorm together in a shared space — all powered by WebSockets, Redis, and PostgreSQL.
 
-## Using this example
+Built with **Next.js**, **Node.js**, **WebSockets**, **Redis**, and **PostgreSQL**, Chalk delivers a fast and seamless real-time canvas experience.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest -e with-tailwind
+## 🚀 Features
+
+- 🎨 Real-time collaborative drawing
+- 🧠 Multi-user whiteboard rooms
+- 🖼️ Excalidraw-style canvas
+- 💾 Persistent canvas state via Redis
+- 🔒 Room-based architecture
+- ⚡ Powered by WebSockets
+
+---
+
+## 🛠️ Getting Started
+
+Follow these steps to run the project locally:
+
+### 1. Clone the repository
+
+```bash
+git clone repo
+cd chalk
 ```
 
-## What's inside?
+### 2. Install dependencies
+```bash
+pnpm install
+```
+### 3. Set up PostgreSQL
+You can use either:
 
-This Turborepo includes the following packages/apps:
+Option A: Local PostgreSQL via Docker
+Update your .env file with the connection string:
 
-### Apps and Packages
+```bash
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/postgres
+```
+Option B: Use an online PostgreSQL provider like Neon
+Create a database and copy the connection string into your .env file:
 
-- `docs`: a [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `web`: another [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `ui`: a stub React component library with [Tailwind CSS](https://tailwindcss.com/) shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+```ini
+DATABASE_URL=your_neon_database_url
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Building packages/ui
-
-This example is set up to produce compiled styles for `ui` components into the `dist` directory. The component `.tsx` files are consumed by the Next.js apps directly using `transpilePackages` in `next.config.js`. This was chosen for several reasons:
-
-- Make sharing one `tailwind.config.js` to apps and packages as easy as possible.
-- Make package compilation simple by only depending on the Next.js Compiler and `tailwindcss`.
-- Ensure Tailwind classes do not overwrite each other. The `ui` package uses a `ui-` prefix for it's classes.
-- Maintain clear package export boundaries.
-
-Another option is to consume `packages/ui` directly from source without building. If using this option, you will need to update the `tailwind.config.js` in your apps to be aware of your package locations, so it can find all usages of the `tailwindcss` class names for CSS compilation.
-
-For example, in [tailwind.config.js](packages/tailwind-config/tailwind.config.js):
-
-```js
-  content: [
-    // app content
-    `src/**/*.{js,ts,jsx,tsx}`,
-    // include packages if not transpiling
-    "../../packages/ui/*.{js,ts,jsx,tsx}",
-  ],
 ```
 
-If you choose this strategy, you can remove the `tailwindcss` and `autoprefixer` dependencies from the `ui` package.
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [Tailwind CSS](https://tailwindcss.com/) for styles
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+```bash
+git clone https://github.com/your-username/chalk.git
+cd chalk
+```bash
+git clone https://github.com/your-username/chalk.git
+cd chalk
