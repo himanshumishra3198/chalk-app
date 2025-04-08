@@ -46,12 +46,35 @@ Create a database and copy the connection string into your .env file:
 
 ```ini
 DATABASE_URL=your_neon_database_url
-
 ```
 
+### 4. Set up Redis (Required)
+Use Docker to run Redis, and make sure to name the container redis_server:
+
 ```bash
-git clone https://github.com/your-username/chalk.git
-cd chalk
+docker run --name redis_server -p 6379:6379 -d redis
+```
+### 5. Run the development server
 ```bash
-git clone https://github.com/your-username/chalk.git
-cd chalk
+pnpm run dev
+```
+# Your app should now be running at http://localhost:3000
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+
+![Home Page](./assets/home.png)
+
+---
+
+### ✏️ Drawing Room
+
+![Drawing Room](./assets/drawing-room.png)
+
+---
+
+### 🔄 Real-time Dashboard (GIF)
+
+![Real-time Collab](./assets/real-time-collab.gif)
+
