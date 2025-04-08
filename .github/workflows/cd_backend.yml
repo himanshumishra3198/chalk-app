@@ -36,6 +36,10 @@ jobs:
             # Create network if not exists
             docker network inspect chalk_network >/dev/null 2>&1 || docker network create chalk_network
 
+            echo "Pulling latest image..."
+            docker pull himanshumishra3198/chalk-app-backend:${{ github.sha }}
+            echo "Stopping and removing old container..."
+
             # Clean up old containers
             docker stop chalk_backend 2>/dev/null && docker rm chalk_backend 2>/dev/null || true
             

@@ -35,9 +35,14 @@ jobs:
           echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 600 ~/ssh_key
           ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@128.199.27.128 << 'EOF'
+            echo "Pulling latest image..."
+            docker pull himanshumishra3198/chalk-app-frontend:${{ github.sha }}
+
+            echo "Stopping and removing old container..."
             # Clean up old containers and cache
             docker system prune -af --volumes
             docker stop chalk_frontend 2>/dev/null && docker rm chalk_frontend 2>/dev/null || true
+            
             # Run new container with restart policy and env variable
             docker run --name chalk_frontend -d --restart unless-stopped -p 3000:3000 \
               -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
