@@ -47,7 +47,7 @@ const worker = new Worker(
   },
   {
     connection: {
-      host: process.env.HOSTNAME || "redis_server",
+      host: "redis_server",
       port: 6379,
     },
   }
