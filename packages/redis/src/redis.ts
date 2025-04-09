@@ -1,10 +1,10 @@
 import { createClient, RedisClientType } from "redis";
 require("dotenv").config();
-console.log(process.env.HOSTNAME);
 
+console.log(process.env.HOSTNAME, "hostname");
 const redisClient: RedisClientType = createClient({
   socket: {
-    host: "redis_server",
+    host: process.env.HOSTNAME || "redis_server",
     port: 6379,
   },
 });

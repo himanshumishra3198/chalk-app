@@ -1,7 +1,6 @@
 import { JWT_SECRET } from "@repo/common/config";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { WebSocketServer, WebSocket } from "ws";
-import { prismaClient } from "@repo/db/client";
 
 import { addChatToQueue, removeChatFromQueue } from "./utils";
 
@@ -132,7 +131,23 @@ wss.on("connection", (ws, req) => {
               message: parsedMessage.shape,
               userId: user.userId,
             });
-          } else {
+          } else if (parsedMessage.type === "DROP_SHAPE") {
+            await removeChatFromQueue({
+              roomId,
+              message: parsedMessage.oldShape,
+              userId: user.userId,
+            });
+            await addChatToQueue({
+              roomId,
+              message: parsedMessage.newShape,
+              userId: user.userId,
+            });
+          } else if (
+            parsedMessage.type !== "MOVE_SHAPE" &&
+            parsedMessage.type !== "Eraser" &&
+            parsedMessage.type !== "DROP_SHAPE" &&
+            parsedMessage.type !== "Select"
+          ) {
             await addChatToQueue({
               roomId,
               message,

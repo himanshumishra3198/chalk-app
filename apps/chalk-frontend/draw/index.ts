@@ -36,6 +36,7 @@ let selectedShapeIndex = -1;
 let offesetX = 0,
   offesetY = 0;
 let selectedShape: Shape | undefined = undefined;
+let oldShape: string | undefined = undefined;
 // const existingSh apes: Shape[] = [];
 
 export async function InitDraw({
@@ -72,6 +73,20 @@ export async function InitDraw({
         if (index !== -1) {
           existingShapes.splice(index, 1);
         }
+      } else if (checkErase.type === "MOVE_SHAPE") {
+        const oldShape = JSON.parse(checkErase.oldShape);
+        const newShape = JSON.parse(checkErase.newShape);
+
+        let index = -1;
+        for (let i = 0; i < existingShapes.length; i++) {
+          if (isEqual(existingShapes[i], oldShape)) {
+            index = i;
+            break;
+          }
+        }
+        if (index !== -1) {
+          existingShapes[index] = newShape;
+        }
       } else {
         existingShapes.push(JSON.parse(message.message));
       }
@@ -98,6 +113,7 @@ export async function InitDraw({
         selectedShape = existingShapes[selectedShapeIndex];
         if (selectedShape) {
           let offsets = getShapeOffset(selectedShape, x, y);
+          oldShape = JSON.stringify(selectedShape);
           offesetX = offsets.offsetX;
           offesetY = offsets.offsetY;
         }
@@ -110,6 +126,20 @@ export async function InitDraw({
     clearCanvas(ctx, myCanvas, existingShapes);
     let { x, y } = getMousePosition(myCanvas, e);
     if (selectedTool === "Select") {
+      if (selectedShape && oldShape) {
+        const newShape = JSON.stringify(selectedShape);
+        ws.send(
+          JSON.stringify({
+            type: "chat",
+            message: JSON.stringify({
+              type: "DROP_SHAPE",
+              oldShape,
+              newShape,
+            }),
+            roomId: room.id,
+          })
+        );
+      }
       selectedShapeIndex = -1;
       offesetX = 0;
       offesetY = 0;
@@ -289,8 +319,20 @@ export async function InitDraw({
           if (selectedShape) {
             const newX = x - offesetX;
             const newY = y - offesetY;
+            const oldShape = JSON.stringify(selectedShape);
             updateShapePosition(selectedShape, newX, newY);
-            // existingShapes[selectedShapeIndex] = selectedShape;
+            const newShape = JSON.stringify(selectedShape);
+            ws.send(
+              JSON.stringify({
+                type: "chat",
+                message: JSON.stringify({
+                  type: "MOVE_SHAPE",
+                  oldShape,
+                  newShape,
+                }),
+                roomId: room.id,
+              })
+            );
             clearCanvas(ctx, myCanvas, existingShapes);
           }
         }

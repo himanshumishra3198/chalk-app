@@ -2,9 +2,10 @@ import { redisClient } from "@repo/redis/redis";
 require("dotenv").config();
 import { Queue } from "bullmq";
 import UUID from "uuid-int";
+
 export const chatQueue = new Queue("chatQueue", {
   connection: {
-    host: "redis_server",
+    host: process.env.HOSTNAME || "redis_server",
     port: 6379,
   },
 });

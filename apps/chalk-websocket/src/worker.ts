@@ -2,7 +2,7 @@ import { Worker } from "bullmq";
 import { prismaClient } from "@repo/db/client";
 import { redisClient } from "@repo/redis/redis";
 require("dotenv").config();
-console.log("HOSTNAME: ", process.env.HOSTNAME);
+
 const worker = new Worker(
   "chatQueue",
   async (job) => {
@@ -47,7 +47,7 @@ const worker = new Worker(
   },
   {
     connection: {
-      host: "redis_server",
+      host: process.env.HOSTNAME || "redis_server",
       port: 6379,
     },
   }
