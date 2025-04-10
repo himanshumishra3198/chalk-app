@@ -68,21 +68,17 @@ export function createPencil({
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
 
-  if (points[0]) {
-    ctx.moveTo(points[0].x, points[0].y);
-  }
-  if (points.length > 1) {
-    for (let i = 1; i < points.length - 1; i++) {
-      const midX = ((points[i]?.x ?? 0) + (points[i + 1]?.x ?? 0)) / 2;
-      const midY = ((points[i]?.y ?? 0) + (points[i + 1]?.y ?? 0)) / 2;
-      ctx.quadraticCurveTo(points[i]?.x ?? 0, points[i]?.y ?? 0, midX, midY);
-    }
+  ctx.moveTo(points[0].x, points[0].y);
+
+  for (let i = 1; i < points.length - 1; i++) {
+    const midX = (points[i].x + points[i + 1].x) / 2;
+    const midY = (points[i].y + points[i + 1].y) / 2;
+    ctx.quadraticCurveTo(points[i].x, points[i].y, midX, midY);
   }
 
-  // Handle the last point
-  if (points[points.length - 1]) {
-    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
-  }
+  // Draw line to the last point to avoid cut-off if only two points
+  const last = points[points.length - 1];
+  ctx.lineTo(last.x, last.y);
 
   ctx.stroke();
   ctx.closePath();

@@ -357,6 +357,7 @@ export async function InitDraw({
         createArrow({ ctx, startX, startY, x, y });
       } else if (selectedTool === "Pencil") {
         points.push({ x, y });
+        clearCanvas(ctx, myCanvas, existingShapes);
         createPencil({ ctx, points, color: "white" });
       }
     }
