@@ -47,7 +47,7 @@ const worker = new Worker(
   },
   {
     connection: {
-      host: "localhost",
+      host: "redis_server",
       port: 6379,
     },
   }

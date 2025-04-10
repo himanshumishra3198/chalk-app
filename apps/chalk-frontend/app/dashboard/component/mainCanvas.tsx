@@ -8,6 +8,16 @@ import { useRoomUsers } from "../../../hooks/useRoomUsers";
 import { Button } from "@repo/ui/button";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { Palette } from "./palette/palette";
+
+interface PaletteOptionProps {
+  strokeColor: string;
+  backgroundColor: string;
+  fillStyle: string;
+  strokeWidth: string;
+  strokeStyle: string;
+  sloppiness: string;
+}
 
 export function MainCanvas({
   room,
@@ -22,6 +32,15 @@ export function MainCanvas({
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [selectedTool, setSelectedTool] = useState<string>("Select");
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteOption, setPaletteOption] = useState<PaletteOptionProps>({
+    strokeColor: "#EEEEEE",
+    backgroundColor: "transparent",
+    fillStyle: "solid",
+    strokeWidth: "thin",
+    strokeStyle: "solid",
+    sloppiness: "low",
+  });
 
   const router = useRouter();
 
@@ -83,6 +102,11 @@ export function MainCanvas({
   }, []);
 
   useEffect(() => {
+    if (selectedTool === "Select") {
+      setPaletteOpen(false);
+    } else {
+      setPaletteOpen(true);
+    }
     if (canvasRef.current) {
       const myCanvas = canvasRef.current;
       const ctx = myCanvas.getContext("2d");
@@ -107,8 +131,10 @@ export function MainCanvas({
   }, [canvasSize, selectedTool, room, ws, existingShapes]); // Re-run when canvasSize or selectedTool changes
 
   return (
-    <div className="h-screen w-screen bg-black grid grid-cols-8 grid-rows-1">
-      <div className="flex flex-col justify-between col-span-1 border-white/10 border-r-2 p-4">
+    <div
+      className={`h-screen w-screen bg-black ${selectedTool === "Select" ? "" : "cursor-crosshair"}`}
+    >
+      {/* <div className="flex flex-col justify-between col-span-1 border-white/10 border-r-2 p-4">
         <div className="flex flex-col gap-4 ">{userAvatars}</div>
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center justify-center space-x-2 text-gray-400 text-sm">
@@ -120,25 +146,27 @@ export function MainCanvas({
             />
           </div>
         </div>
-      </div>
-      <div
-        className={`col-span-7 ${selectedTool === "Select" ? "" : "cursor-crosshair"}`}
-      >
-        <Toolbar
-          selectedTool={selectedTool}
-          changeTool={(tool) => {
-            setSelectedTool(() => {
-              return tool;
-            });
-          }}
-        />
-        <canvas
-          ref={canvasRef}
-          className="bg-black block"
-          width={canvasSize.width}
-          height={canvasSize.height}
-        ></canvas>
-      </div>
+      </div> */}
+      <Palette
+        paletteOpen={paletteOpen}
+        setPaletteOption={setPaletteOption}
+        paletteOption={paletteOption}
+      />
+
+      <Toolbar
+        selectedTool={selectedTool}
+        changeTool={(tool) => {
+          setSelectedTool(() => {
+            return tool;
+          });
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        className="bg-black block"
+        width={canvasSize.width}
+        height={canvasSize.height}
+      ></canvas>
     </div>
   );
 }
