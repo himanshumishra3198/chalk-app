@@ -3,11 +3,11 @@ import { PaletteOptionProps } from "../../../app/configs/paletteOptions";
 import Toolbar from "./toolBar";
 
 import { InitDraw } from "../../../draw";
-import { UserAvatar } from "@repo/ui/userAvatar";
+
 import { useRoomUsers } from "../../../hooks/useRoomUsers";
-import { Button } from "@repo/ui/button";
+
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+
 import { Palette } from "./palette/palette";
 import { ConnectedUsers } from "./connectedUsers";
 
@@ -39,15 +39,12 @@ export function MainCanvas({
   const router = useRouter();
 
   useEffect(() => {
-    ws.send(JSON.stringify({ type: "online_users" }));
+    ws.send(JSON.stringify({ type: "online_users", online: true }));
+    return () => {
+      ws.send(JSON.stringify({ type: "online_users", online: false }));
+    };
   }, []);
 
-  ws.onmessage = (event: any) => {
-    const data = JSON.parse(event.data);
-    if (data.type === "online_users") {
-      setOnlineUsers(data.users);
-    }
-  };
   let { users, loading, error } = useRoomUsers(room.id);
   useEffect(() => {
     if (!loading) {

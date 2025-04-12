@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { WebSocketServer, WebSocket } from "ws";
 
 import { addChatToQueue, removeChatFromQueue } from "./utils";
+import { prismaClient } from "@repo/db/client";
 
 const wss = new WebSocketServer({ port: 8081 });
 
@@ -94,12 +95,10 @@ wss.on("connection", (ws, req) => {
     const user = users.find((user) => user.ws === ws);
     if (!user) return;
     if (parsedData.type === "online_users") {
-      ws.send(
-        JSON.stringify({
-          type: "online_users",
-          users: onlineUsers,
-        })
-      );
+      await prismaClient.user.update({
+        where: { id: user.userId },
+        data: { online: parsedData.online },
+      });
     } else if (parsedData.type === "join_room") {
       if (user && notAlreadySubscribed(user.rooms, parsedData.roomId))
         user.rooms.push(parsedData.roomId);
