@@ -344,7 +344,6 @@ app.post("/leaveRoom/:roomId", async (req, res) => {
       },
     });
 
-    // check if the user was owner of the room if yes then reassign to another user
     const room = await prismaClient.room.findFirst({
       where: {
         id: roomId,

@@ -17,12 +17,16 @@ interface PaletteOptionProps {
 
 export function Palette({
   paletteOpen,
+  setPaletteOpen,
   setPaletteOption,
   paletteOption,
+  selectedTool,
 }: {
   paletteOpen: boolean;
+  setPaletteOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setPaletteOption: React.Dispatch<React.SetStateAction<PaletteOptionProps>>;
   paletteOption: PaletteOptionProps;
+  selectedTool: string;
 }) {
   const [isOpen, setIsOpen] = useState(paletteOpen);
 
@@ -59,8 +63,8 @@ export function Palette({
       <Button
         variant="ghost"
         size="icon"
-        className="m-2 bg-zinc-900 text-white hover:bg-zinc-800"
-        onClick={() => setIsOpen(!isOpen)}
+        className="m-2  text-white hover:bg-zinc-800"
+        onClick={() => setPaletteOpen(!paletteOpen)}
       >
         <Menu className="h-5 w-5" />
         <span className="sr-only">Toggle menu</span>
@@ -93,143 +97,155 @@ export function Palette({
             </div>
 
             {/* Background Color */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-zinc-400">Background</h3>
-              <div className="grid grid-cols-6 gap-2">
-                {backgroundColors.map((color, index) => (
-                  <button
-                    key={index}
-                    className={cn(
-                      "h-8 w-8 rounded-md border border-zinc-700 transition-all hover:scale-110",
-                      color === "transparent" && "bg-opacity-0",
-                      paletteOption.backgroundColor === color &&
-                        "ring-2 ring-white"
-                    )}
-                    style={{
-                      backgroundColor: color,
-                      backgroundImage:
-                        color === "transparent"
-                          ? "linear-gradient(45deg, #333 25%, transparent 25%, transparent 75%, #333 75%, #333), linear-gradient(45deg, #333 25%, transparent 25%, transparent 75%, #333 75%, #333)"
-                          : "none",
-                      backgroundSize:
-                        color === "transparent" ? "8px 8px" : "auto",
-                      backgroundPosition:
-                        color === "transparent" ? "0 0, 4px 4px" : "auto",
-                    }}
-                    onClick={() => {
-                      setPaletteOption((prev: PaletteOptionProps) => ({
-                        ...prev,
-                        backgroundColor: color,
-                      }));
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
+            {(selectedTool === "Rectangle" ||
+              selectedTool === "Diamond" ||
+              selectedTool === "Circle") && (
+              <>
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-zinc-400">
+                    Background
+                  </h3>
+                  <div className="grid grid-cols-6 gap-2">
+                    {backgroundColors.map((color, index) => (
+                      <button
+                        key={index}
+                        className={cn(
+                          "h-8 w-8 rounded-md border border-zinc-700 transition-all hover:scale-110",
+                          color === "transparent" && "bg-opacity-0",
+                          paletteOption.backgroundColor === color &&
+                            "ring-2 ring-white"
+                        )}
+                        style={{
+                          backgroundColor: color,
+                          backgroundImage:
+                            color === "transparent"
+                              ? "linear-gradient(45deg, #333 25%, transparent 25%, transparent 75%, #333 75%, #333), linear-gradient(45deg, #333 25%, transparent 25%, transparent 75%, #333 75%, #333)"
+                              : "none",
+                          backgroundSize:
+                            color === "transparent" ? "8px 8px" : "auto",
+                          backgroundPosition:
+                            color === "transparent" ? "0 0, 4px 4px" : "auto",
+                        }}
+                        onClick={() => {
+                          setPaletteOption((prev: PaletteOptionProps) => ({
+                            ...prev,
+                            backgroundColor: color,
+                          }));
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
 
-            {/* Fill Style */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-zinc-400">Fill</h3>
-              <div className="grid grid-cols-5 gap-2">
-                <button
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
-                    paletteOption.fillStyle === "hachure" && "ring-2 ring-white"
-                  )}
-                  onClick={() => {
-                    setPaletteOption((prev: PaletteOptionProps) => ({
-                      ...prev,
-                      fillStyle: "hachure",
-                    }));
-                  }}
-                >
-                  <div
-                    className="h-6 w-6"
-                    style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(45deg, #fff, #fff 1px, transparent 1px, transparent 4px)",
-                    }}
-                  ></div>
-                </button>
-                <button
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
-                    paletteOption.fillStyle === "cross-hatch" &&
-                      "ring-2 ring-white"
-                  )}
-                  onClick={() => {
-                    setPaletteOption((prev: PaletteOptionProps) => ({
-                      ...prev,
-                      fillStyle: "cross-hatch",
-                    }));
-                  }}
-                >
-                  <div
-                    className="h-6 w-6"
-                    style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(45deg, #fff, #fff 1px, transparent 1px, transparent 4px), repeating-linear-gradient(135deg, #fff, #fff 1px, transparent 1px, transparent 4px)",
-                    }}
-                  ></div>
-                </button>
-                <button
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
-                    paletteOption.fillStyle === "solid" && "ring-2 ring-white"
-                  )}
-                  onClick={() => {
-                    setPaletteOption((prev: PaletteOptionProps) => ({
-                      ...prev,
-                      fillStyle: "solid",
-                    }));
-                  }}
-                >
-                  <div className="h-6 w-6 rounded bg-white"></div>
-                </button>
-                <button
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
-                    paletteOption.fillStyle === "dots" && "ring-2 ring-white"
-                  )}
-                  onClick={() => {
-                    setPaletteOption((prev: PaletteOptionProps) => ({
-                      ...prev,
-                      fillStyle: "dots",
-                    }));
-                  }}
-                >
-                  <div
-                    className="h-6 w-6"
-                    style={{
-                      backgroundImage:
-                        "radial-gradient(#fff 1px, transparent 1px)",
-                      backgroundSize: "4px 4px",
-                    }}
-                  ></div>
-                </button>
-                <button
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
-                    paletteOption.fillStyle === "dashed" && "ring-2 ring-white"
-                  )}
-                  onClick={() => {
-                    setPaletteOption((prev: PaletteOptionProps) => ({
-                      ...prev,
-                      fillStyle: "dashed",
-                    }));
-                  }}
-                >
-                  <div
-                    className="h-6 w-6"
-                    style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(0deg, #fff, #fff 1px, transparent 1px, transparent 4px), repeating-linear-gradient(90deg, #fff, #fff 1px, transparent 1px, transparent 4px)",
-                      backgroundSize: "4px 4px",
-                    }}
-                  ></div>
-                </button>
-              </div>
-            </div>
+                {/* Fill Style */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-zinc-400">Fill</h3>
+                  <div className="grid grid-cols-5 gap-2">
+                    <button
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
+                        paletteOption.fillStyle === "hachure" &&
+                          "ring-2 ring-white"
+                      )}
+                      onClick={() => {
+                        setPaletteOption((prev: PaletteOptionProps) => ({
+                          ...prev,
+                          fillStyle: "hachure",
+                        }));
+                      }}
+                    >
+                      <div
+                        className="h-6 w-6"
+                        style={{
+                          backgroundImage:
+                            "repeating-linear-gradient(45deg, #fff, #fff 1px, transparent 1px, transparent 4px)",
+                        }}
+                      ></div>
+                    </button>
+                    <button
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
+                        paletteOption.fillStyle === "cross-hatch" &&
+                          "ring-2 ring-white"
+                      )}
+                      onClick={() => {
+                        setPaletteOption((prev: PaletteOptionProps) => ({
+                          ...prev,
+                          fillStyle: "cross-hatch",
+                        }));
+                      }}
+                    >
+                      <div
+                        className="h-6 w-6"
+                        style={{
+                          backgroundImage:
+                            "repeating-linear-gradient(45deg, #fff, #fff 1px, transparent 1px, transparent 4px), repeating-linear-gradient(135deg, #fff, #fff 1px, transparent 1px, transparent 4px)",
+                        }}
+                      ></div>
+                    </button>
+                    <button
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
+                        paletteOption.fillStyle === "solid" &&
+                          "ring-2 ring-white"
+                      )}
+                      onClick={() => {
+                        setPaletteOption((prev: PaletteOptionProps) => ({
+                          ...prev,
+                          fillStyle: "solid",
+                        }));
+                      }}
+                    >
+                      <div className="h-6 w-6 rounded bg-white"></div>
+                    </button>
+                    <button
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
+                        paletteOption.fillStyle === "dots" &&
+                          "ring-2 ring-white"
+                      )}
+                      onClick={() => {
+                        setPaletteOption((prev: PaletteOptionProps) => ({
+                          ...prev,
+                          fillStyle: "dots",
+                        }));
+                      }}
+                    >
+                      <div
+                        className="h-6 w-6"
+                        style={{
+                          backgroundImage:
+                            "radial-gradient(#fff 1px, transparent 1px)",
+                          backgroundSize: "4px 4px",
+                        }}
+                      ></div>
+                    </button>
+                    <button
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
+                        paletteOption.fillStyle === "dashed" &&
+                          "ring-2 ring-white"
+                      )}
+                      onClick={() => {
+                        setPaletteOption((prev: PaletteOptionProps) => ({
+                          ...prev,
+                          fillStyle: "dashed",
+                        }));
+                      }}
+                    >
+                      <div
+                        className="h-6 w-6"
+                        style={{
+                          backgroundImage:
+                            "repeating-linear-gradient(0deg, #fff, #fff 1px, transparent 1px, transparent 4px), repeating-linear-gradient(90deg, #fff, #fff 1px, transparent 1px, transparent 4px)",
+                          backgroundSize: "4px 4px",
+                        }}
+                      ></div>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Stroke Width */}
             <div className="space-y-2">

@@ -85,19 +85,16 @@ export function createText(
   x: number,
   y: number
 ) {
-  // Set default options
   const font = "16px Arial",
     color = "white",
     textAlign = "left",
     textBaseline = "top";
 
-  // Apply styles
   ctx.font = font;
   ctx.fillStyle = color;
   ctx.textAlign = textAlign;
   ctx.textBaseline = textBaseline;
 
-  // Draw the text
   ctx.fillText(text, x, y);
 }
 
@@ -144,7 +141,7 @@ export function getShapeDistanceToPoint(
 
       const dx = Math.max(x1 - point.x, 0, point.x - x2);
       const dy = Math.max(y1 - point.y, 0, point.y - y2);
-      return Math.sqrt(dx * dx + dy * dy); // 0 if inside
+      return Math.sqrt(dx * dx + dy * dy);
     }
 
     case "Circle": {
@@ -241,7 +238,7 @@ function getShapeSize(shape: Shape): number {
     case "Pencil":
       return shape.points.length;
     case "Text":
-      return 100 * 20; // fixed dimensions assumed in your isPointInside
+      return 100 * 20;
     default:
       return Infinity;
   }
@@ -336,14 +333,13 @@ export function getShapeOffset(
     case "Diamond":
     case "Line":
     case "Arrow":
-      // We'll take the top-left corner (startX/startY) as the reference
       return {
         offsetX: mouseX - shape.startX,
         offsetY: mouseY - shape.startY,
       };
 
     case "Pencil":
-      // For pencil, use the first point as reference
+      //  first point as reference
       if (shape.points.length > 0) {
         return {
           offsetX:

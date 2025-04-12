@@ -92,7 +92,10 @@ export async function InitDraw({
           }
         }
         if (index !== -1) {
-          existingShapes[index] = newShape;
+          existingShapes[index] = {
+            ...newShape,
+            paletteConfigurations: JSON.parse(newShape.paletteConfigurations),
+          };
         }
       } else {
         const shape = JSON.parse(message.message);
@@ -125,7 +128,12 @@ export async function InitDraw({
         selectedShape = existingShapes[selectedShapeIndex];
         if (selectedShape) {
           let offsets = getShapeOffset(selectedShape, x, y);
-          oldShape = JSON.stringify(selectedShape);
+          oldShape = JSON.stringify({
+            ...selectedShape,
+            paletteConfigurations: JSON.stringify(
+              selectedShape.paletteConfigurations
+            ),
+          });
           offesetX = offsets.offsetX;
           offesetY = offsets.offsetY;
         }
@@ -139,7 +147,12 @@ export async function InitDraw({
     let { x, y } = getMousePosition(myCanvas, e);
     if (selectedTool === "Select") {
       if (selectedShape && oldShape) {
-        const newShape = JSON.stringify(selectedShape);
+        const newShape = JSON.stringify({
+          ...selectedShape,
+          paletteConfigurations: JSON.stringify(
+            selectedShape.paletteConfigurations
+          ),
+        });
         ws.send(
           JSON.stringify({
             type: "chat",
@@ -403,9 +416,20 @@ export async function InitDraw({
           if (selectedShape) {
             const newX = x - offesetX;
             const newY = y - offesetY;
-            const oldShape = JSON.stringify(selectedShape);
+
+            const oldShape = JSON.stringify({
+              ...selectedShape,
+              paletteConfigurations: JSON.stringify(
+                selectedShape.paletteConfigurations
+              ),
+            });
             updateShapePosition(selectedShape, newX, newY);
-            const newShape = JSON.stringify(selectedShape);
+            const newShape = JSON.stringify({
+              ...selectedShape,
+              paletteConfigurations: JSON.stringify(
+                selectedShape.paletteConfigurations
+              ),
+            });
             ws.send(
               JSON.stringify({
                 type: "chat",

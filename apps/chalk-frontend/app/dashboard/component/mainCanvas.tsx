@@ -9,6 +9,7 @@ import { Button } from "@repo/ui/button";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Palette } from "./palette/palette";
+import { ConnectedUsers } from "./connectedUsers";
 
 export function MainCanvas({
   room,
@@ -22,13 +23,15 @@ export function MainCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [selectedTool, setSelectedTool] = useState<string>("Select");
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<
+    { id: string; name: string; online: boolean }[]
+  >([]);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteOption, setPaletteOption] = useState<PaletteOptionProps>({
     strokeColor: "#EEEEEE",
     backgroundColor: "transparent",
     fillStyle: "solid",
-    strokeWidth: "thin",
+    strokeWidth: "1",
     strokeStyle: "solid",
     sloppiness: "low",
   });
@@ -45,31 +48,17 @@ export function MainCanvas({
       setOnlineUsers(data.users);
     }
   };
-
   let { users, loading, error } = useRoomUsers(room.id);
-  let userAvatars;
-  if (!loading) {
-    console.log(users);
-    userAvatars = users.map(
-      (
-        user: {
-          name: string;
-          online: boolean;
-          id: string;
-        },
-        index
-      ) => {
-        return (
-          <div key={index}>
-            <UserAvatar
-              name={user.name.split(" ")[0]}
-              online={onlineUsers.includes(user.id)}
-            />
-          </div>
-        );
-      }
-    );
-  }
+  useEffect(() => {
+    if (!loading) {
+      const userList = users.map(
+        (user: { id: string; name: string; online: boolean }) => {
+          return { id: user.id, name: user.name, online: user.online };
+        }
+      );
+      setOnlineUsers(userList);
+    }
+  }, [loading]);
 
   function handleExit() {
     router.push("/dashboard");
@@ -102,10 +91,10 @@ export function MainCanvas({
       const myCanvas = canvasRef.current;
       const ctx = myCanvas.getContext("2d");
       if (!ctx || !room || !ws) return;
-      // Clear existing event listeners to avoid multiple listeners
+
       const abortController = new AbortController();
       const { signal } = abortController;
-      // Re-initialize drawing logic with the new selectedTool
+
       InitDraw({
         myCanvas,
         ctx,
@@ -143,6 +132,8 @@ export function MainCanvas({
         paletteOpen={paletteOpen}
         setPaletteOption={setPaletteOption}
         paletteOption={paletteOption}
+        selectedTool={selectedTool}
+        setPaletteOpen={setPaletteOpen}
       />
 
       <Toolbar
@@ -159,6 +150,7 @@ export function MainCanvas({
         width={canvasSize.width}
         height={canvasSize.height}
       ></canvas>
+      {!loading && <ConnectedUsers users={onlineUsers} />}
     </div>
   );
 }

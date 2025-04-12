@@ -92,7 +92,6 @@ export const createDiamond = ({
   const halfWidth = Math.abs(x - startX) / 2;
   const halfHeight = Math.abs(y - startY) / 2;
 
-  // Points of the diamond: top, right, bottom, left
   const points: [number, number][] = [
     [centerX, centerY - halfHeight], // top
     [centerX + halfWidth, centerY], // right
@@ -154,7 +153,7 @@ export const createArrow = ({
   rc: RoughCanvas;
   paletteConfigurations: PaletteOptionProps;
 }) => {
-  // Main line
+  // main line
   rc.line(startX, startY, x, y, {
     stroke: paletteConfigurations.strokeColor,
     strokeWidth: Number(paletteConfigurations.strokeWidth),
