@@ -226,42 +226,59 @@ export async function InitDraw({
       input.style.left = `${e.clientX}px`;
       input.style.top = `${e.clientY}px`;
       input.style.background = "transparent";
-      input.style.color = "white";
-      input.style.font = "16px Arial";
+      input.style.color = paletteOption.strokeColor;
+      input.style.font =
+        paletteOption.strokeWidth === "1"
+          ? "16px Arial"
+          : paletteOption.strokeWidth === "2"
+            ? "24px Arial"
+            : "32px Arial";
       input.style.border = "none";
       input.style.outline = "none";
       document.body.appendChild(input);
       input.focus();
 
+      const handleInput = () => {
+        if (input.value.trim()) {
+          existingShapes.push({
+            type: "Text",
+            x: x,
+            y: y,
+            text: input.value,
+            paletteConfigurations: {
+              strokeColor: paletteOption.strokeColor,
+              backgroundColor: paletteOption.backgroundColor,
+              fillStyle: "solid",
+              strokeWidth: paletteOption.strokeWidth,
+              strokeStyle: "solid",
+              sloppiness: "low",
+            },
+          });
+          message = JSON.stringify({
+            type: "Text",
+            x: x,
+            y: y,
+            text: input.value,
+            paletteConfigurations: JSON.stringify(paletteOption),
+          });
+        }
+        document.body.removeChild(input);
+      };
+
       input.addEventListener(
         "blur",
-        (e) => {
-          console.log(e);
-          if (input.value.trim()) {
-            console.log(input.value);
-            existingShapes.push({
-              type: "Text",
-              x: x,
-              y: y,
-              text: input.value,
-              paletteConfigurations: {
-                strokeColor: paletteOption.strokeColor,
-                backgroundColor: "transparent",
-                fillStyle: "solid",
-                strokeWidth: "thin",
-                strokeStyle: "solid",
-                sloppiness: "low",
-              },
-            });
-            message = JSON.stringify({
-              type: "Text",
-              x: x,
-              y: y,
-              text: input.value,
-              paletteConfigurations: JSON.stringify(paletteOption),
-            });
+        () => {
+          handleInput();
+        },
+        { once: true }
+      );
+
+      input.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key === "Enter") {
+            handleInput();
           }
-          document.body.removeChild(input);
         },
         { once: true }
       );

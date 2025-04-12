@@ -11,6 +11,7 @@ import {
   createPencil,
 } from "./createShapes";
 import { RoughCanvas } from "roughjs/bin/canvas";
+import { PaletteOptionProps } from "@/app/configs/paletteOptions";
 
 export function clearCanvas(
   ctx: CanvasRenderingContext2D | null,
@@ -19,7 +20,6 @@ export function clearCanvas(
   rc: RoughCanvas
 ) {
   if (ctx) {
-    console.log("clearing canvas");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     existingShapes.map((shape) => {
       if (shape.type === "Rectangle") {
@@ -73,20 +73,38 @@ export function clearCanvas(
           paletteConfigurations: shape.paletteConfigurations,
         });
       } else if (shape.type === "Text") {
-        createText(ctx, shape.text, shape.x, shape.y);
+        createText({
+          ctx,
+          text: shape.text,
+          x: shape.x,
+          y: shape.y,
+          paletteConfigurations: shape.paletteConfigurations,
+        });
       }
     });
   }
 }
 
-export function createText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number
-) {
-  const font = "16px Arial",
-    color = "white",
+export function createText({
+  ctx,
+  text,
+  x,
+  y,
+  paletteConfigurations,
+}: {
+  ctx: CanvasRenderingContext2D;
+  text: string;
+  x: number;
+  y: number;
+  paletteConfigurations: PaletteOptionProps;
+}) {
+  const font =
+      paletteConfigurations.strokeWidth === "1"
+        ? "16px Arial"
+        : paletteConfigurations.strokeWidth === "2"
+          ? "24px Arial"
+          : "32px Arial",
+    color = paletteConfigurations.strokeColor,
     textAlign = "left",
     textBaseline = "top";
 
