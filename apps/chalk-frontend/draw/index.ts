@@ -67,8 +67,10 @@ export async function InitDraw({
       const checkErase = JSON.parse(message.message);
       console.log(checkErase);
       if (checkErase.type === "Eraser") {
-        const currShape = JSON.parse(checkErase.shape);
-
+        let currShape = JSON.parse(checkErase.shape);
+        currShape.paletteConfigurations = JSON.parse(
+          currShape.paletteConfigurations
+        );
         let index = -1;
         for (let i = 0; i < existingShapes.length; i++) {
           if (isEqual(existingShapes[i], currShape)) {
@@ -81,9 +83,11 @@ export async function InitDraw({
           existingShapes.splice(index, 1);
         }
       } else if (checkErase.type === "MOVE_SHAPE") {
-        const oldShape = JSON.parse(checkErase.oldShape);
+        let oldShape = JSON.parse(checkErase.oldShape);
         const newShape = JSON.parse(checkErase.newShape);
-
+        oldShape.paletteConfigurations = JSON.parse(
+          oldShape.paletteConfigurations
+        );
         let index = -1;
         for (let i = 0; i < existingShapes.length; i++) {
           if (isEqual(existingShapes[i], oldShape)) {

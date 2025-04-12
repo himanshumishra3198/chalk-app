@@ -3,29 +3,29 @@ import FeatureCard from "./components/featureCard";
 import Link from "next/link";
 const Page = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#1A1F2C] text-white">
       <Navbar />
 
       {/* Hero Section */}
       <div className="relative pt-32 pb-20 sm:pt-40 sm:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 bg-clip-text text-transparent">
             Draw, Collaborate, Create
           </h1>
-          <p className="text-lg sm:text-xl text-white/70 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             A beautiful and intuitive whiteboard for teams. Sketch ideas, create
             diagrams, and collaborate in real-time.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link
               href="/signup"
-              className="px-8 py-3 bg-white text-[#1A1F2C] rounded-lg font-medium hover:bg-white/90 transition-colors"
+              className="px-8 py-3 bg-gray-200 text-[#1A1F2C] rounded-lg font-medium hover:bg-gray-300 transition-colors"
             >
               Get Started
             </Link>
             <Link
               href="/login"
-              className="px-8 py-3 border border-white/20 rounded-lg font-medium hover:bg-white/10 transition-colors"
+              className="px-8 py-3 border border-gray-500 rounded-lg font-medium hover:bg-gray-700 transition-colors"
             >
               Login
             </Link>
@@ -55,9 +55,9 @@ const Page = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 mt-20">
+      <footer className="border-t border-gray-700 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <p className="text-center text-white/50">
+          <p className="text-center text-gray-500">
             © {new Date().getFullYear()} Chalk. All rights reserved.
           </p>
         </div>

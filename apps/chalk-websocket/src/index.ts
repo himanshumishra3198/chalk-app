@@ -109,18 +109,19 @@ wss.on("connection", (ws, req) => {
     } else if (parsedData.type === "chat") {
       const { message, roomId } = parsedData;
       const parsedMessage = JSON.parse(message);
-
-      users.forEach((eachUser) => {
-        if (eachUser.rooms.includes(roomId) && eachUser.ws !== ws) {
-          eachUser.ws.send(
-            JSON.stringify({
-              type: "chat",
-              message,
-              roomId,
-            })
-          );
-        }
-      });
+      if (parsedMessage.type !== "DROP_SHAPE") {
+        users.forEach((eachUser) => {
+          if (eachUser.rooms.includes(roomId) && eachUser.ws !== ws) {
+            eachUser.ws.send(
+              JSON.stringify({
+                type: "chat",
+                message,
+                roomId,
+              })
+            );
+          }
+        });
+      }
 
       (async () => {
         try {

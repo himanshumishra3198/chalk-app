@@ -5,7 +5,7 @@ import UUID from "uuid-int";
 
 export const chatQueue = new Queue("chatQueue", {
   connection: {
-    host: "redis_server",
+    host: "localhost",
     port: 6379,
   },
 });

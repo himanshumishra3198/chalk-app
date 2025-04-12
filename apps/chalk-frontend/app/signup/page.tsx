@@ -43,17 +43,17 @@ export default function Signup() {
     setLoading(false);
   }
   return (
-    <div className="w-screen flex h-screen items-center justify-center">
-      <div className="border border-white/10 bg-white/5 text-white p-4 rounded">
-        <div className="text-white flex items-center justify-center p-4 font-mono font-extrabold">
+    <div className="w-screen flex h-screen items-center justify-center bg-gray-900">
+      <div className="border border-gray-700 bg-gray-800 text-gray-200 p-6 rounded-lg shadow-lg">
+        <div className="text-gray-100 flex items-center justify-center p-4 font-mono font-extrabold text-2xl">
           Chalk
         </div>
         <div className="flex items-center flex-col gap-4">
-          <InputBox reference={nameRef} placeholder="name" type="text" />
-          <InputBox reference={emailRef} placeholder="email" type="text" />
+          <InputBox reference={nameRef} placeholder="Name" type="text" />
+          <InputBox reference={emailRef} placeholder="Email" type="text" />
           <InputBox
             reference={passwordRef}
-            placeholder="password"
+            placeholder="Password"
             type="password"
           />
         </div>
@@ -63,7 +63,7 @@ export default function Signup() {
           </div>
         )}
 
-        <div className="text-white p-4 flex items-center justify-center">
+        <div className="text-gray-100 p-4 flex items-center justify-center">
           <Button
             text="Signup"
             onClick={handleSignup}
