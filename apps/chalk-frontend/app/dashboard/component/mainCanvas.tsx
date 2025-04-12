@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 
 import { Palette } from "./palette/palette";
 import { ConnectedUsers } from "./connectedUsers";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function MainCanvas({
   room,
@@ -125,6 +127,17 @@ export function MainCanvas({
           </div>
         </div>
       </div> */}
+      <div className="fixed top-0 right-0 z-50 p-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-zinc-800 rounded-full"
+          onClick={handleExit}
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Return</span>
+        </Button>
+      </div>
       <Palette
         paletteOpen={paletteOpen}
         setPaletteOption={setPaletteOption}
