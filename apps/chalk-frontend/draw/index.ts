@@ -1,18 +1,23 @@
 import { isEqual, update } from "lodash";
 import { Shape } from "./shapes";
+
+import rough from "roughjs/bundled/rough.esm.js";
+
 import {
   getShapeOffset,
   getClosestShapeIndex,
   updateShapePosition,
+  clearCanvas,
 } from "./utils";
 import {
-  clearCanvas,
-  createArrow,
+  createRectangle,
   createCircle,
+  createArrow,
+  createDiamond,
   createLine,
   createPencil,
-  drawDiamond,
-} from "./utils";
+} from "./createShapes";
+import { PaletteOptionProps } from "../app/configs/paletteOptions";
 
 interface PlayProps {
   myCanvas: HTMLCanvasElement;
@@ -22,6 +27,7 @@ interface PlayProps {
   selectedTool: string;
   signal: AbortSignal;
   loadedShapes: Shape[];
+  paletteOption: PaletteOptionProps;
 }
 
 function getMousePosition(canvas: HTMLCanvasElement, event: MouseEvent) {
@@ -37,7 +43,6 @@ let offesetX = 0,
   offesetY = 0;
 let selectedShape: Shape | undefined = undefined;
 let oldShape: string | undefined = undefined;
-// const existingSh apes: Shape[] = [];
 
 export async function InitDraw({
   myCanvas,
@@ -47,12 +52,14 @@ export async function InitDraw({
   selectedTool,
   signal,
   loadedShapes,
+  paletteOption,
 }: PlayProps) {
   if (!ctx || !ws || !room) return;
+  const rc = rough.canvas(myCanvas);
   console.log(selectedTool);
   existingShapes = loadedShapes;
 
-  clearCanvas(ctx, myCanvas, existingShapes);
+  clearCanvas(ctx, myCanvas, existingShapes, rc);
 
   const handleMessage = (e: any) => {
     const message = JSON.parse(e.data);
@@ -88,10 +95,15 @@ export async function InitDraw({
           existingShapes[index] = newShape;
         }
       } else {
-        existingShapes.push(JSON.parse(message.message));
+        const shape = JSON.parse(message.message);
+        const parsedShape = {
+          ...shape,
+          paletteConfigurations: JSON.parse(shape.paletteConfigurations),
+        };
+        existingShapes.push(parsedShape);
       }
 
-      clearCanvas(ctx, myCanvas, existingShapes);
+      clearCanvas(ctx, myCanvas, existingShapes, rc);
     }
   };
   ws.addEventListener("message", handleMessage, { signal });
@@ -123,7 +135,7 @@ export async function InitDraw({
   let message = "";
   const mouseUpHandler = (e: MouseEvent) => {
     clicked = false;
-    clearCanvas(ctx, myCanvas, existingShapes);
+    clearCanvas(ctx, myCanvas, existingShapes, rc);
     let { x, y } = getMousePosition(myCanvas, e);
     if (selectedTool === "Select") {
       if (selectedShape && oldShape) {
@@ -149,16 +161,25 @@ export async function InitDraw({
         type: "Rectangle",
         x: startX,
         y: startY,
-        height: x - startX,
-        width: y - startY,
+        width: x - startX,
+        height: y - startY,
+        paletteConfigurations: {
+          strokeColor: paletteOption.strokeColor,
+          backgroundColor: paletteOption.backgroundColor,
+          fillStyle: paletteOption.fillStyle,
+          strokeWidth: paletteOption.strokeWidth,
+          strokeStyle: paletteOption.strokeStyle,
+          sloppiness: paletteOption.sloppiness,
+        },
       });
 
       message = JSON.stringify({
         type: "Rectangle",
         x: startX,
         y: startY,
-        height: x - startX,
-        width: y - startY,
+        width: x - startX,
+        height: y - startY,
+        paletteConfigurations: JSON.stringify(paletteOption),
       });
     } else if (selectedTool === "Circle") {
       const radius = Math.sqrt(
@@ -169,12 +190,21 @@ export async function InitDraw({
         x: startX,
         y: startY,
         radius: radius,
+        paletteConfigurations: {
+          strokeColor: paletteOption.strokeColor,
+          backgroundColor: paletteOption.backgroundColor,
+          fillStyle: paletteOption.fillStyle,
+          strokeWidth: paletteOption.strokeWidth,
+          strokeStyle: paletteOption.strokeStyle,
+          sloppiness: paletteOption.sloppiness,
+        },
       });
       message = JSON.stringify({
         type: "Circle",
         x: startX,
         y: startY,
         radius: radius,
+        paletteConfigurations: JSON.stringify(paletteOption),
       });
     } else if (selectedTool === "Text") {
       const input = document.createElement("input");
@@ -201,12 +231,21 @@ export async function InitDraw({
               x: x,
               y: y,
               text: input.value,
+              paletteConfigurations: {
+                strokeColor: paletteOption.strokeColor,
+                backgroundColor: "transparent",
+                fillStyle: "solid",
+                strokeWidth: "thin",
+                strokeStyle: "solid",
+                sloppiness: "low",
+              },
             });
             message = JSON.stringify({
               type: "Text",
               x: x,
               y: y,
               text: input.value,
+              paletteConfigurations: JSON.stringify(paletteOption),
             });
           }
           document.body.removeChild(input);
@@ -220,6 +259,14 @@ export async function InitDraw({
         startY: startY,
         x: x,
         y: y,
+        paletteConfigurations: {
+          strokeColor: paletteOption.strokeColor,
+          backgroundColor: paletteOption.backgroundColor,
+          fillStyle: paletteOption.fillStyle,
+          strokeWidth: paletteOption.strokeWidth,
+          strokeStyle: paletteOption.strokeStyle,
+          sloppiness: paletteOption.sloppiness,
+        },
       });
 
       message = JSON.stringify({
@@ -228,6 +275,7 @@ export async function InitDraw({
         startY,
         x,
         y,
+        paletteConfigurations: JSON.stringify(paletteOption),
       });
     } else if (selectedTool === "Line") {
       existingShapes.push({
@@ -236,6 +284,14 @@ export async function InitDraw({
         startY,
         x,
         y,
+        paletteConfigurations: {
+          strokeColor: paletteOption.strokeColor,
+          backgroundColor: paletteOption.backgroundColor,
+          fillStyle: paletteOption.fillStyle,
+          strokeWidth: paletteOption.strokeWidth,
+          strokeStyle: paletteOption.strokeStyle,
+          sloppiness: paletteOption.sloppiness,
+        },
       });
 
       message = JSON.stringify({
@@ -244,6 +300,7 @@ export async function InitDraw({
         startY,
         x,
         y,
+        paletteConfigurations: JSON.stringify(paletteOption),
       });
     } else if (selectedTool === "Arrow") {
       existingShapes.push({
@@ -252,6 +309,14 @@ export async function InitDraw({
         startY,
         x,
         y,
+        paletteConfigurations: {
+          strokeColor: paletteOption.strokeColor,
+          backgroundColor: paletteOption.backgroundColor,
+          fillStyle: paletteOption.fillStyle,
+          strokeWidth: paletteOption.strokeWidth,
+          strokeStyle: paletteOption.strokeStyle,
+          sloppiness: paletteOption.sloppiness,
+        },
       });
 
       message = JSON.stringify({
@@ -260,16 +325,26 @@ export async function InitDraw({
         startY,
         x,
         y,
+        paletteConfigurations: JSON.stringify(paletteOption),
       });
     } else if (selectedTool === "Pencil") {
       existingShapes.push({
         type: "Pencil",
         points,
+        paletteConfigurations: {
+          strokeColor: paletteOption.strokeColor,
+          backgroundColor: paletteOption.backgroundColor,
+          fillStyle: paletteOption.fillStyle,
+          strokeWidth: paletteOption.strokeWidth,
+          strokeStyle: paletteOption.strokeStyle,
+          sloppiness: paletteOption.sloppiness,
+        },
       });
 
       message = JSON.stringify({
         type: "Pencil",
         points,
+        paletteConfigurations: JSON.stringify(paletteOption),
       });
 
       points = [];
@@ -285,34 +360,43 @@ export async function InitDraw({
         );
       }
     }
-    if (selectedTool !== "Select") clearCanvas(ctx, myCanvas, existingShapes);
+    if (selectedTool !== "Select")
+      clearCanvas(ctx, myCanvas, existingShapes, rc);
   };
 
   const mouseMoveHandler = (e: MouseEvent) => {
     if (clicked && ctx) {
-      clearCanvas(ctx, myCanvas, existingShapes);
+      clearCanvas(ctx, myCanvas, existingShapes, rc);
       ctx.strokeStyle = "white";
       let { x, y } = getMousePosition(myCanvas, e);
 
       if (selectedTool === "Eraser") {
         const shapeIndex = getClosestShapeIndex({ x, y }, existingShapes);
         if (shapeIndex !== -1) {
-          const erasedShape = existingShapes[shapeIndex];
-          existingShapes.splice(shapeIndex, 1);
-          const message = JSON.stringify({
-            type: "Eraser",
-            index: shapeIndex,
-            shape: JSON.stringify(erasedShape),
-          });
+          let erasedShape = existingShapes[shapeIndex];
+          if (erasedShape) {
+            let stringifiedShape = {
+              ...erasedShape,
+              paletteConfigurations: JSON.stringify(
+                erasedShape.paletteConfigurations
+              ),
+            };
+            existingShapes.splice(shapeIndex, 1);
+            const message = JSON.stringify({
+              type: "Eraser",
+              index: shapeIndex,
+              shape: JSON.stringify(stringifiedShape),
+            });
 
-          ws.send(
-            JSON.stringify({
-              type: "chat",
-              message: message,
-              roomId: room.id,
-            })
-          );
-          clearCanvas(ctx, myCanvas, existingShapes);
+            ws.send(
+              JSON.stringify({
+                type: "chat",
+                message: message,
+                roomId: room.id,
+              })
+            );
+            clearCanvas(ctx, myCanvas, existingShapes, rc);
+          }
         }
       } else if (selectedTool === "Select") {
         if (selectedShapeIndex !== -1) {
@@ -333,11 +417,25 @@ export async function InitDraw({
                 roomId: room.id,
               })
             );
-            clearCanvas(ctx, myCanvas, existingShapes);
+            clearCanvas(ctx, myCanvas, existingShapes, rc);
           }
         }
       } else if (selectedTool === "Rectangle") {
-        ctx.strokeRect(startX, startY, x - startX, y - startY);
+        createRectangle({
+          x: startX,
+          y: startY,
+          width: x - startX,
+          height: y - startY,
+          rc,
+          paletteConfigurations: {
+            strokeColor: paletteOption.strokeColor,
+            backgroundColor: paletteOption.backgroundColor,
+            fillStyle: paletteOption.fillStyle,
+            strokeWidth: paletteOption.strokeWidth,
+            strokeStyle: paletteOption.strokeStyle,
+            sloppiness: paletteOption.sloppiness,
+          },
+        });
       } else if (selectedTool === "Circle") {
         const radius = Math.sqrt(
           (x - startX) * (x - startX) + (y - startY) * (y - startY)
@@ -346,19 +444,79 @@ export async function InitDraw({
           x: startX,
           y: startY,
           radius: radius,
-          color: "white",
-          ctx,
+          rc,
+          paletteConfigurations: {
+            strokeColor: paletteOption.strokeColor,
+            backgroundColor: paletteOption.backgroundColor,
+            fillStyle: paletteOption.fillStyle,
+            strokeWidth: paletteOption.strokeWidth,
+            strokeStyle: paletteOption.strokeStyle,
+            sloppiness: paletteOption.sloppiness,
+          },
         });
       } else if (selectedTool === "Diamond") {
-        drawDiamond(ctx, startX, startY, x, y);
+        createDiamond({
+          startX,
+          startY,
+          x,
+          y,
+          rc,
+          paletteConfigurations: {
+            strokeColor: paletteOption.strokeColor,
+            backgroundColor: paletteOption.backgroundColor,
+            fillStyle: paletteOption.fillStyle,
+            strokeWidth: paletteOption.strokeWidth,
+            strokeStyle: paletteOption.strokeStyle,
+            sloppiness: paletteOption.sloppiness,
+          },
+        });
       } else if (selectedTool === "Line") {
-        createLine({ startX, startY, x, y, color: "white", ctx });
+        createLine({
+          startX,
+          startY,
+          x,
+          y,
+          rc,
+          paletteConfigurations: {
+            strokeColor: paletteOption.strokeColor,
+            backgroundColor: paletteOption.backgroundColor,
+            fillStyle: paletteOption.fillStyle,
+            strokeWidth: paletteOption.strokeWidth,
+            strokeStyle: paletteOption.strokeStyle,
+            sloppiness: paletteOption.sloppiness,
+          },
+        });
       } else if (selectedTool === "Arrow") {
-        createArrow({ ctx, startX, startY, x, y });
+        createArrow({
+          startX,
+          startY,
+          x,
+          y,
+          rc,
+          paletteConfigurations: {
+            strokeColor: paletteOption.strokeColor,
+            backgroundColor: paletteOption.backgroundColor,
+            fillStyle: paletteOption.fillStyle,
+            strokeWidth: paletteOption.strokeWidth,
+            strokeStyle: paletteOption.strokeStyle,
+            sloppiness: paletteOption.sloppiness,
+          },
+        });
       } else if (selectedTool === "Pencil") {
         points.push({ x, y });
-        clearCanvas(ctx, myCanvas, existingShapes);
-        createPencil({ ctx, points, color: "white" });
+
+        createPencil({
+          points,
+          rc,
+          paletteConfigurations: {
+            strokeColor: paletteOption.strokeColor,
+            backgroundColor: paletteOption.backgroundColor,
+            fillStyle: paletteOption.fillStyle,
+            strokeWidth: paletteOption.strokeWidth,
+            strokeStyle: paletteOption.strokeStyle,
+            sloppiness: paletteOption.sloppiness,
+          },
+        });
       }
     }
   };

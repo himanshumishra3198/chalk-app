@@ -1,5 +1,5 @@
 import { use, useEffect, useRef, useState } from "react";
-
+import { PaletteOptionProps } from "../../../app/configs/paletteOptions";
 import Toolbar from "./toolBar";
 
 import { InitDraw } from "../../../draw";
@@ -9,15 +9,6 @@ import { Button } from "@repo/ui/button";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Palette } from "./palette/palette";
-
-interface PaletteOptionProps {
-  strokeColor: string;
-  backgroundColor: string;
-  fillStyle: string;
-  strokeWidth: string;
-  strokeStyle: string;
-  sloppiness: string;
-}
 
 export function MainCanvas({
   room,
@@ -102,7 +93,7 @@ export function MainCanvas({
   }, []);
 
   useEffect(() => {
-    if (selectedTool === "Select") {
+    if (selectedTool === "Select" || selectedTool === "Eraser") {
       setPaletteOpen(false);
     } else {
       setPaletteOpen(true);
@@ -123,16 +114,17 @@ export function MainCanvas({
         selectedTool,
         signal,
         loadedShapes: existingShapes,
+        paletteOption,
       });
       return () => {
         abortController.abort();
       };
     }
-  }, [canvasSize, selectedTool, room, ws, existingShapes]); // Re-run when canvasSize or selectedTool changes
+  }, [canvasSize, selectedTool, room, ws, existingShapes, paletteOption]); // Re-run when canvasSize or selectedTool changes
 
   return (
     <div
-      className={`h-screen w-screen bg-black ${selectedTool === "Select" ? "" : "cursor-crosshair"}`}
+      className={`h-screen w-screen bg-black ${selectedTool === "Select" ? "cursor-grab" : "cursor-crosshair"}`}
     >
       {/* <div className="flex flex-col justify-between col-span-1 border-white/10 border-r-2 p-4">
         <div className="flex flex-col gap-4 ">{userAvatars}</div>

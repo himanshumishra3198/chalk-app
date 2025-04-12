@@ -42,9 +42,16 @@ export function Palette({
     "#E65100",
     "#6A1B9A",
   ];
-  const fillStyles = ["hatch", "cross-hatch", "solid"];
-  const strokeWidths = ["thin", "medium", "thick"];
-  const strokeStyles = ["solid", "dotted", "dashed"];
+  const fillStyles = [
+    "hachure",
+    "cross-hatch",
+    "solid",
+    "dots",
+    "dashed",
+    "zigzag",
+  ];
+  const strokeWidths = ["1", "3", "5"];
+  const strokeStyles = ["solid", "dashed"];
   const sloppinessLevels = ["low", "medium", "high"];
 
   return (
@@ -123,16 +130,16 @@ export function Palette({
             {/* Fill Style */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-zinc-400">Fill</h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 <button
                   className={cn(
                     "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
-                    paletteOption.fillStyle === "hatch" && "ring-2 ring-white"
+                    paletteOption.fillStyle === "hachure" && "ring-2 ring-white"
                   )}
                   onClick={() => {
                     setPaletteOption((prev: PaletteOptionProps) => ({
                       ...prev,
-                      fillStyle: "hatch",
+                      fillStyle: "hachure",
                     }));
                   }}
                 >
@@ -178,6 +185,48 @@ export function Palette({
                   }}
                 >
                   <div className="h-6 w-6 rounded bg-white"></div>
+                </button>
+                <button
+                  className={cn(
+                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
+                    paletteOption.fillStyle === "dots" && "ring-2 ring-white"
+                  )}
+                  onClick={() => {
+                    setPaletteOption((prev: PaletteOptionProps) => ({
+                      ...prev,
+                      fillStyle: "dots",
+                    }));
+                  }}
+                >
+                  <div
+                    className="h-6 w-6"
+                    style={{
+                      backgroundImage:
+                        "radial-gradient(#fff 1px, transparent 1px)",
+                      backgroundSize: "4px 4px",
+                    }}
+                  ></div>
+                </button>
+                <button
+                  className={cn(
+                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
+                    paletteOption.fillStyle === "dashed" && "ring-2 ring-white"
+                  )}
+                  onClick={() => {
+                    setPaletteOption((prev: PaletteOptionProps) => ({
+                      ...prev,
+                      fillStyle: "dashed",
+                    }));
+                  }}
+                >
+                  <div
+                    className="h-6 w-6"
+                    style={{
+                      backgroundImage:
+                        "repeating-linear-gradient(0deg, #fff, #fff 1px, transparent 1px, transparent 4px), repeating-linear-gradient(90deg, #fff, #fff 1px, transparent 1px, transparent 4px)",
+                      backgroundSize: "4px 4px",
+                    }}
+                  ></div>
                 </button>
               </div>
             </div>
@@ -235,28 +284,7 @@ export function Palette({
                 >
                   <div className="h-[2px] w-6 bg-white"></div>
                 </button>
-                <button
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",
-                    paletteOption.strokeStyle === "dotted" &&
-                      "ring-2 ring-white"
-                  )}
-                  onClick={() => {
-                    setPaletteOption((prev: PaletteOptionProps) => ({
-                      ...prev,
-                      strokeStyle: "dotted",
-                    }));
-                  }}
-                >
-                  <div className="flex w-6 justify-between">
-                    {[...Array(5)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-[2px] w-[2px] rounded-full bg-white"
-                      ></div>
-                    ))}
-                  </div>
-                </button>
+
                 <button
                   className={cn(
                     "flex h-10 w-10 items-center justify-center rounded-md bg-indigo-900/50 transition-all hover:bg-indigo-800/60",

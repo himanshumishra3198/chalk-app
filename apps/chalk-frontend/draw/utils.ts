@@ -2,161 +2,81 @@ import axios from "axios";
 
 import { Shape } from "./shapes";
 import { BACKEND_URL } from "../app/configs";
+import {
+  createRectangle,
+  createCircle,
+  createArrow,
+  createDiamond,
+  createLine,
+  createPencil,
+} from "./createShapes";
+import { RoughCanvas } from "roughjs/bin/canvas";
 
 export function clearCanvas(
   ctx: CanvasRenderingContext2D | null,
   canvas: HTMLCanvasElement,
-  existingShapes: Shape[]
+  existingShapes: Shape[],
+  rc: RoughCanvas
 ) {
   if (ctx) {
     console.log("clearing canvas");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     existingShapes.map((shape) => {
       if (shape.type === "Rectangle") {
-        ctx.strokeStyle = "white";
-        ctx.strokeRect(shape.x, shape.y, shape.height, shape.width);
+        createRectangle({
+          x: shape.x,
+          y: shape.y,
+          width: shape.width,
+          height: shape.height,
+          rc,
+          paletteConfigurations: shape.paletteConfigurations,
+        });
       } else if (shape.type === "Circle") {
         createCircle({
           x: shape.x,
           y: shape.y,
           radius: shape.radius,
-          color: "white",
-          ctx,
+          rc,
+          paletteConfigurations: shape.paletteConfigurations,
         });
       } else if (shape.type === "Diamond") {
-        drawDiamond(ctx, shape.startX, shape.startY, shape.x, shape.y, "white");
+        createDiamond({
+          x: shape.x,
+          y: shape.y,
+          startX: shape.startX,
+          startY: shape.startY,
+          rc,
+          paletteConfigurations: shape.paletteConfigurations,
+        });
       } else if (shape.type === "Line") {
         createLine({
           startX: shape.startX,
           startY: shape.startY,
           x: shape.x,
           y: shape.y,
-          color: "white",
-          ctx,
+          rc,
+          paletteConfigurations: shape.paletteConfigurations,
         });
       } else if (shape.type === "Arrow") {
         createArrow({
-          ctx,
           startX: shape.startX,
           startY: shape.startY,
           x: shape.x,
           y: shape.y,
+          rc,
+          paletteConfigurations: shape.paletteConfigurations,
         });
       } else if (shape.type === "Pencil") {
-        createPencil({ ctx, points: shape.points, color: "white" });
+        createPencil({
+          points: shape.points,
+          rc,
+          paletteConfigurations: shape.paletteConfigurations,
+        });
       } else if (shape.type === "Text") {
         createText(ctx, shape.text, shape.x, shape.y);
       }
     });
   }
-}
-
-export function createPencil({
-  ctx,
-  points,
-  color,
-}: {
-  ctx: CanvasRenderingContext2D | null;
-  points: { x: number; y: number }[];
-  color: string;
-}) {
-  if (!ctx || points.length < 2) return;
-
-  ctx.beginPath();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.lineJoin = "round";
-  ctx.lineCap = "round";
-
-  ctx.moveTo(points[0].x, points[0].y);
-
-  for (let i = 1; i < points.length - 1; i++) {
-    const midX = (points[i].x + points[i + 1].x) / 2;
-    const midY = (points[i].y + points[i + 1].y) / 2;
-    ctx.quadraticCurveTo(points[i].x, points[i].y, midX, midY);
-  }
-
-  // Draw line to the last point to avoid cut-off if only two points
-  const last = points[points.length - 1];
-  ctx.lineTo(last.x, last.y);
-
-  ctx.stroke();
-  ctx.closePath();
-}
-
-export function createArrow({
-  ctx,
-  startX,
-  startY,
-  x,
-  y,
-}: {
-  ctx: CanvasRenderingContext2D | null;
-  startX: number;
-  startY: number;
-  x: number;
-  y: number;
-}) {
-  if (ctx) {
-    const headlen = 15; // length of arrowhead
-    const dx = x - startX;
-    const dy = y - startY;
-    const angle = Math.atan2(dy, dx);
-
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(
-      x - headlen * Math.cos(angle - Math.PI / 7),
-      y - headlen * Math.sin(angle - Math.PI / 7)
-    );
-    ctx.lineTo(
-      x - headlen * Math.cos(angle + Math.PI / 7),
-      y - headlen * Math.sin(angle + Math.PI / 7)
-    );
-    ctx.lineTo(x, y);
-    ctx.lineTo(
-      x - headlen * Math.cos(angle - Math.PI / 7),
-      y - headlen * Math.sin(angle - Math.PI / 7)
-    );
-    ctx.stroke();
-  }
-}
-
-export function drawDiamond(
-  ctx: CanvasRenderingContext2D,
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number,
-  color: string = "white"
-) {
-  const x = Math.min(startX, endX);
-  const y = Math.min(startY, endY);
-  const width = Math.abs(endX - startX);
-  const height = Math.abs(endY - startY);
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
-
-  const points = [
-    { x: centerX, y: y }, // Top
-    { x: x + width, y: centerY }, // Right
-    { x: centerX, y: y + height }, // Bottom
-    { x: x, y: centerY }, // Left
-  ];
-
-  ctx.strokeStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-  ctx.closePath();
-  ctx.stroke();
 }
 
 export function createText(
@@ -181,53 +101,6 @@ export function createText(
   ctx.fillText(text, x, y);
 }
 
-export function createLine({
-  startX,
-  startY,
-  x,
-  y,
-  color,
-  ctx,
-}: {
-  startX: number;
-  startY: number;
-  x: number;
-  y: number;
-  color: string;
-  ctx: CanvasRenderingContext2D | null;
-}) {
-  // Start a new Path
-  if (ctx) {
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(x, y);
-
-    // Draw the Path
-    ctx.stroke();
-  }
-}
-
-export function createCircle({
-  x,
-  y,
-  radius,
-  color,
-  ctx,
-}: {
-  x: number;
-  y: number;
-  radius: number;
-  color: string;
-  ctx: CanvasRenderingContext2D | null;
-}) {
-  if (ctx) {
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = color;
-    ctx.stroke();
-  }
-}
-
 export async function getExistingShapes(roomId: number) {
   const token = localStorage.getItem("token");
   const res = await axios.get(BACKEND_URL + `/chat/${roomId}`, {
@@ -244,8 +117,14 @@ export async function getExistingShapes(roomId: number) {
       const message = JSON.parse(x.message);
       return message;
     });
-
-    return shapes;
+    const parsedShapes = shapes.map((shape: any) => {
+      return {
+        ...shape,
+        paletteConfigurations: JSON.parse(shape.paletteConfigurations),
+      };
+    });
+    console.log("parsedshape:", parsedShapes);
+    return parsedShapes;
   } else {
     console.log(res.data);
     return [];
