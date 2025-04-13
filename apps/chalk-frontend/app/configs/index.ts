@@ -5,5 +5,5 @@ export const BACKEND_URL = isLocal
   : "https://api.chalk.hm0.org"; // Use production URL for deployment
 
 export const WEBSOCKET_URL = isLocal
-  ? "ws://localhost:8081" // Use localhost for development
-  : "ws://ws.chalk.hm0.org"; // Use WS (secure WebSocket)
+  ? "wss://localhost:8081" // Use localhost for development
+  : "https://ws.chalk.hm0.org"; // Use WS (secure WebSocket)
