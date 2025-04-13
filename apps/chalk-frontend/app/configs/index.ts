@@ -6,4 +6,4 @@ export const BACKEND_URL = isLocal
 
 export const WEBSOCKET_URL = isLocal
   ? "ws://localhost:8081" // Use localhost for development
-  : "ws://chalk.hm0.org/ws/"; // Use WSS (secure WebSocket) in production
+  : "ws://chalk.hm0.org/ws/"; // Use WSS (secure WebSocket) in
