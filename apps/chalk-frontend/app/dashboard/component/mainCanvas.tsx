@@ -33,9 +33,9 @@ export function MainCanvas({
     strokeColor: "#EEEEEE",
     backgroundColor: "transparent",
     fillStyle: "solid",
-    strokeWidth: "1",
+    strokeWidth: "3",
     strokeStyle: "solid",
-    sloppiness: "low",
+    sloppiness: "medium",
   });
 
   const router = useRouter();
