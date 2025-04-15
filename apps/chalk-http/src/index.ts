@@ -57,7 +57,11 @@ app.post("/signup", async (req, res) => {
     }
   } else {
     res.status(400).json({
-      error: parsedData.error.issues[0]?.message || "Internal server error",
+      error:
+        (parsedData.error.issues[0]?.message as string).replace(
+          "String",
+          "Email and Password"
+        ) || "Internal server error",
     });
   }
 });
