@@ -11,6 +11,7 @@ import {
   JWT_SECRET,
 } from "@repo/common/config";
 import { auth } from "./middleware";
+import { error } from "console";
 
 declare global {
   namespace Express {
@@ -56,7 +57,7 @@ app.post("/signup", async (req, res) => {
     }
   } else {
     res.status(400).json({
-      error: parsedData.error,
+      error: parsedData.error.issues[0]?.message || "Internal server error",
     });
   }
 });
